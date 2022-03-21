@@ -1,0 +1,12 @@
+.title {
+    background-color: black;
+    color: #e8a62b;
+    min-height: 500px;
+    font-family:'Abel', sans-serif;
+}
+
+.paragraph {
+    background-color: black;
+    color: white;
+    font-family:'Abel', sans-serif;
+}
