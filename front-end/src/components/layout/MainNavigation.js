@@ -35,13 +35,13 @@ function MainNavigation() {
             </NavDropdown>
             <Nav.Link href="lyft">LYFT</Nav.Link>
             <NavDropdown title="CARPOOL" id="collasible-nav-dropdown">
-              <NavDropdown.Item as={Link} to={"/"}>
+              <NavDropdown.Item href="how-to-use">
                 HOW TO USE
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to={"/"}>
+              <NavDropdown.Item href="schedule-carpool">
                 SCHEDULE A CARPOOL
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to={"/"}>
+              <NavDropdown.Item href="join-carpool">
                 JOIN A CARPOOL
               </NavDropdown.Item>
             </NavDropdown>
