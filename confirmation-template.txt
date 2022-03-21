@@ -1,0 +1,5 @@
+Dear Student,
+
+Thank you for using our carpool app! This automated email is to confirm your carpool group. Please join the GroupMe at the following link: gm_link
+
+If you wish to leave the carpool group, please communicate with the others in the GroupMe chat.
