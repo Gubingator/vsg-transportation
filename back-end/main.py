@@ -38,7 +38,7 @@ def parse_carpool_sql(carpool):
     the_date_time = str(carpool[3]).split(" ")
     the_date = the_date_time[0].split("-")
     element = {'id': carpool[0], 'students': list_students, 'location': str(carpool[2]), 'year': the_date[0],
-               'month': the_date[1], 'day': the_date[0], 'time': the_date_time[1]}
+               'month': the_date[1], 'day': the_date[2], 'time': the_date_time[1]}
     return element
 
 
@@ -74,6 +74,10 @@ print("Inserted", cursor.rowcount, "row(s) of data.")
 cursor.execute(
     "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
     ("Student 3, Student 4", "Morgan Circle", "2022-3-21 6:00"))
+
+cursor.execute(
+    "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+    ("Student 5", "EBI Circle", "2022-3-22 18:00"))
 
 # cursor.execute("INSERT INTO inventory (name, quantity) VALUES (%s, %s);", ("orange", 154))
 # print("Inserted",cursor.rowcount,"row(s) of data.")
@@ -113,12 +117,16 @@ class CarpoolPut(Resource):
         inst = json.loads(str(data))
 
         the_time = inst['time'].split(":")
+        the_students = inst['students']
+        student_string = ""
+        for stu in the_students:
+            student_string = student_string + stu + student_delimiter
 
         the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
         print(the_date)
         cursor.execute(
             "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-            (inst['students'], inst['location'], the_date))
+            (student_string, inst['location'], the_date))
         print("Inserted", cursor.rowcount, "row(s) of data.")
         cursor.execute("SELECT LAST_INSERT_ID();")
         rows = cursor.fetchall()

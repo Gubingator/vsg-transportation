@@ -1,0 +1,14 @@
+.list {
+  list-style: circle;
+  margin: 0;
+}
+
+.cardData {
+	margin-top: 10px;
+}
+
+.buttonData {
+  max-width: 120px;
+  max-height: 40px;
+  margin-top: 0px; 
+}

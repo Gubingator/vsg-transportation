@@ -27,11 +27,11 @@ function Picture(props) {
         className="img-fluid"
         alt="Responsive image"
       />
-      {props.circleText !== "" ? (
+      {/* {props.circleText !== "" ? (
         <Circle text={props.circleText} />
       ) : (
         <div></div>
-      )}
+      )} */}
     </div>
   );
 }
