@@ -1,5 +1,10 @@
 .thebutton {
 	float: right;
+	width: 20%;
+	height: 70%;
+	max-width: 90px;
+	max-height: 35px;
+
 }
 
 .thecard {
