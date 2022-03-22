@@ -4,4 +4,6 @@
 
 .page {
 	min-height: 500px;
+	max-width: 80%;
 }
+
