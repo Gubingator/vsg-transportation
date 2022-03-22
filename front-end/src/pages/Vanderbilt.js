@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import DropdownCard from "../components/UI/DropdownCard";
 import classes from "./Vanderbilt.module.css";
+import Picture from "../components/layout/Picture";
 
 function Vanderbilt(props) {
   const [VandyVans, setVandyVans] = useState(true);
@@ -34,12 +35,8 @@ function Vanderbilt(props) {
 
   return (
     <div>
-      <img
-        src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-        className="img-fluid"
-        alt="Responsive image"
-      />
-      <h1> Vanderbilt Transportation Information</h1>
+      <Picture circleText="VANDERBILT" />
+      <h1> Vanderbilt transportation information</h1>
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>
           <DropdownCard
@@ -47,7 +44,7 @@ function Vanderbilt(props) {
             title="VandyVans"
             theClick={HandleVandyOnClick}
             text={"This is a test"}
-            link = {""}
+            link={""}
           ></DropdownCard>
         </Row>
         <Row className={classes.cardRow}>

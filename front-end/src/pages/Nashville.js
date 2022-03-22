@@ -11,9 +11,9 @@ import {
 } from "react-bootstrap";
 import DropdownCard from "../components/UI/DropdownCard";
 import classes from "./Nashville.module.css";
+import Picture from "../components/layout/Picture";
 
 function Nashville(props) {
-
   const [WeGO, setWeGO] = useState(true);
   const [Lyft, setLyft] = useState(true);
   const [TransitApp, setTransitApp] = useState(true);
@@ -44,19 +44,17 @@ function Nashville(props) {
 
   return (
     <div>
-      <img
-        src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-        className="img-fluid"
-        alt="Responsive image"
-      />
-      <h1>Nashville Transportation Information</h1>
+      <Picture circleText="NASHVILLE" />
+      <h1>Nashville transportation information</h1>
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>
           <DropdownCard
             clicked={WeGO}
             title="WeGO"
             theClick={HandleWeGOnClick}
-            text={"WeGo Public Transit is the website for the bus sytems around Nashville."}
+            text={
+              "WeGo Public Transit is the website for the bus sytems around Nashville."
+            }
             link={"https://www.wegotransit.com/"}
           ></DropdownCard>
         </Row>
@@ -66,7 +64,7 @@ function Nashville(props) {
             title="Lyft"
             theClick={HandleLyftonClick}
             text={"This is a test 2"}
-            link = {""}
+            link={""}
           ></DropdownCard>
         </Row>
         <Row className={classes.cardRow}>
@@ -75,7 +73,7 @@ function Nashville(props) {
             title="TransitApp"
             theClick={HandleTransitAppOnClick}
             text={"This is a test 3"}
-            link ={"https://transitapp.com/region/nashville"}
+            link={"https://transitapp.com/region/nashville"}
           ></DropdownCard>
         </Row>
       </Container>

@@ -1,14 +1,11 @@
 import { Container } from "react-bootstrap";
 import classes from "./HomePage.module.css";
+import Picture from "../components/layout/Picture";
 
 function HomePage(props) {
   return (
     <div>
-      <img
-        src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-        className="img-fluid"
-        alt="Responsive image"
-      />
+      <Picture circleText="" />
 
       <Container fluid className={classes.title}>
         <h1>STUDENT TRANSPORTATION</h1>
