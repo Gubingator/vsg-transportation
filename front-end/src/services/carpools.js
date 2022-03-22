@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
 const initData = [
   {
     id: 1,
-    students: "Student1, Student2",
+    students: ["Student1" , "Student2"],
     location: "Hank Circle",
     year: "2022",
     month: "04",
@@ -26,7 +26,7 @@ const initData = [
   },
   {
     id: 2,
-    students: "Student3, Student4",
+    students: ["Student3" , "Student4"],
     location: "EBI Circle",
     year: "2022",
     month: "04",
@@ -35,7 +35,7 @@ const initData = [
   },
   {
     id: 3,
-    students: "Student5, Student6",
+    students: ["Student3" , "Student4"],
     location: "Morgan Circle",
     year: "2022",
     month: "04",

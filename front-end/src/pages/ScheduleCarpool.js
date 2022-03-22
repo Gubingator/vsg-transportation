@@ -11,14 +11,14 @@ import {
   Nav,
   Overlay,
 } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 
 function ScheduleCarpool(props) {
   return (
     <div>
       <img
         src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-        class="img-fluid"
+        className="img-fluid"
         alt="Responsive image"
       />
       <h1>Page to Schedule a carpool</h1>
@@ -49,8 +49,8 @@ function ScheduleCarpool(props) {
             <div className={classes.inputGroup}>
                 <label>Departure Location: </label>
 
-                <select class="custom-select" id="inputGroupSelect">
-                    <option selected>Choose...</option>
+                <select className="custom-select" id="inputGroupSelect">
+                    <option defaultValue={'Choose...'}>Choose...</option>
                     <option value="1">Highland</option>
                     <option value="2">Kissam/EBI</option>
                     <option value="3">Zeppos</option>

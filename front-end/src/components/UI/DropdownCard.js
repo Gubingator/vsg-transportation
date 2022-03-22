@@ -2,7 +2,6 @@ import { Card, Row, Col, Button } from "react-bootstrap";
 import classes from "./DropdownCard.module.css";
 
 function DropdownCard(props) {
-	console.log(props.link);
 
   return (
     <div>
