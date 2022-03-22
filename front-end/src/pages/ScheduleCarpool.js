@@ -28,7 +28,7 @@ function ScheduleCarpool(props) {
         </div>
       </div> */}
     
-        <div className="information">
+        <div className={classes.information}>
             <label>First Name:</label>
             <input
                 type="text"
@@ -46,7 +46,7 @@ function ScheduleCarpool(props) {
                 type="time"
             />
         
-            <div class="input-group">
+            <div className={classes.inputGroup}>
                 <label>Departure Location: </label>
 
                 <select class="custom-select" id="inputGroupSelect">
@@ -57,11 +57,7 @@ function ScheduleCarpool(props) {
                     <option value="4">Commons</option>
                     <option value="5">Blair</option>
                     <option value="6">Other</option>
-
                 </select>
-                <div class="input-group-append">
-                    <label class="input-group-text" for="inputGroupSelect">Options</label>
-                </div>
             </div>
         
             <button /*onClick={do stuff} */>Add Carpool Request</button>
