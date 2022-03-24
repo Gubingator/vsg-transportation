@@ -1,11 +1,10 @@
 .circle {
   display: table-cell;
-
-  width: 10em;
-  height: 10em;
+  width: 10px;
+  height: 10px;
   background-color: white;
   opacity: 0.7;
-  border-radius: 50%;
+  border-radius: 10%;
   font-family: "Abel";
   font-size: 20pt;
   vertical-align: middle;
@@ -18,4 +17,10 @@
   top: 15em;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.fig {
+  margin: 0px;
+  width: 100%;
+  position: relative;
 }

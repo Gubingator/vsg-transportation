@@ -19,11 +19,6 @@ function ScheduleCarpool(props) {
     <div>
       <Picture circleText="SCHEDULE A CARPOOL" />
       <h1>Page to Schedule a carpool</h1>
-      {/* <div class={classes.centered}>
-        <div class={classes.circle}>
-          <p class="text">Contact Us</p>
-        </div>
-      </div> */}
 
       <div className={classes.information}>
         <label>First Name:</label>

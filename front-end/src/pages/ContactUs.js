@@ -7,10 +7,13 @@ import {
   Button,
   Alert,
   Container,
+  Row,
+  Col,
   Navbar,
   NavDropdown,
   Nav,
   Overlay,
+  Figure,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
