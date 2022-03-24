@@ -14,11 +14,6 @@ import JoinCarpool from "./pages/JoinCarpool";
 function App() {
   return (
     <div>
-      <div
-        style={{
-          backgroundColor: "black",
-        }}
-      />
       <Layout>
         <Routes>
           <Route path="/" exact element={<HomePage />} />

@@ -1,10 +1,9 @@
 import classes from "./HomePage.module.css";
+import Picture from "../components/layout/Picture";
 import { GetCarpools, NewCarpool } from "../services/carpools";
 import { React, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Row, Col, Container } from "react-bootstrap";
-
-
 
 function HomePage(props) {
   const dispatch = useDispatch();
@@ -13,17 +12,13 @@ function HomePage(props) {
     GetCarpools(dispatch);
   }, []);
 
-  function getNewStem(){
+  function getNewStem() {
     NewCarpool(dispatch, "{}");
   }
 
   return (
     <div>
-      <img
-        src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-        className="img-fluid"
-        alt="Responsive image"
-      />
+      <Picture circleText="" />
 
       <Container fluid className={classes.title}>
         <h1>STUDENT TRANSPORTATION</h1>
@@ -35,8 +30,7 @@ function HomePage(props) {
         </p>
       </Container>
 
-
-      { /*
+      {/*
 			<img src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png" className="img-fluid" alt="Responsive image" />
 			<h1>Home Page</h1>
       <Button onClick={() => {getNewStem()}}>Press Here</Button>
