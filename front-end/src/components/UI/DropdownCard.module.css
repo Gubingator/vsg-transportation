@@ -1,12 +1,27 @@
 .thebutton {
-	float: right;
-	max-width: 90px;
-	max-height: 35px;
-	margin-top: 0px;
+  float: right;
+  max-width: 35px;
+  max-height: 35px;
+  margin-top: 2px;
+  margin-right: 4px;
+  background-color: gainsboro;
+}
+.thebutton:hover {
+  background-color: gray;
+}
 
+.thebutton:target {
+  background-color: gray;
 }
 
 .thecard {
-	background-color: gainsboro;
+  background-color: gainsboro;
+  font-family: "Open Sans";
+  font-size: 20pt;
+  padding-left: 0px;
+  min-height: 70px;
 }
 
+.thelink {
+  font-size: 15pt;
+}

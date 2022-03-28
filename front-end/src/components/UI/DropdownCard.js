@@ -2,16 +2,30 @@ import { Card, Row, Col, Button } from "react-bootstrap";
 import classes from "./DropdownCard.module.css";
 
 function DropdownCard(props) {
-
   return (
     <div>
       {props.clicked ? (
         <Card className={classes.thecard}>
           <Row>
-            <Col>
+            <Col style={{ paddingLeft: "17px" }}>
               {props.title}
-              <Button onClick={props.theClick} className={classes.thebutton}>
-                Expand
+              <Button
+                onClick={props.theClick}
+                className={classes.thebutton}
+                style={{
+                  fontFamily: "serif",
+                  fontSize: "25pt",
+                  lineHeight: "22pt",
+                  paddingTop: "0",
+                  paddingBottom: "5px",
+                  paddingLeft: "0px",
+                  paddingRight: "0",
+                  borderRadius: "50%",
+                  borderColor: "black",
+                  color: "black",
+                }}
+              >
+                +
               </Button>
             </Col>
           </Row>
@@ -19,20 +33,39 @@ function DropdownCard(props) {
       ) : (
         <Card className={classes.thecard}>
           <Row>
-            <Col>
+            <Col style={{ paddingLeft: "17px" }}>
               {props.title}
               <Button
                 onClick={props.theClick}
                 className={classes.thebutton}
+                style={{
+                  fontFamily: "serif",
+                  fontSize: "25pt",
+                  lineHeight: "22pt",
+                  paddingTop: "0",
+                  paddingBottom: "5px",
+                  paddingLeft: "0px",
+                  paddingRight: "0",
+                  borderRadius: "50%",
+                  borderColor: "black",
+                  color: "black",
+                  backgroundColor: "gray",
+                }}
                 active
               >
-                Close
+                -
               </Button>
             </Col>
           </Row>
-          <Card.Body>
-            <Card.Text>{props.text}</Card.Text>
-						<a href={props.link}>Link to {props.title}</a>
+          <Card.Body style={{ backgroundColor: "white" }}>
+            <Card.Text style={{ fontSize: "15pt" }}>{props.text}</Card.Text>
+            {props.link ? (
+              <a href={props.link} className={classes.thelink}>
+                Link to {props.title}
+              </a>
+            ) : (
+              <div></div>
+            )}
           </Card.Body>
         </Card>
       )}

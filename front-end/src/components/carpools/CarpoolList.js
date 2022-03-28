@@ -1,7 +1,6 @@
 import CarpoolItem from "./CarpoolItem";
-import { Container} from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import DateBlock from "./DateBlock";
-
 
 function CarpoolList(props) {
   let CurDate = "";
@@ -49,6 +48,7 @@ function CarpoolList(props) {
                 year={carpool["year"]}
                 month={carpool["month"]}
                 day={carpool["day"]}
+                syle={{ fontFamily: "Open Sans" }}
               />
             ) : (
               <div></div>
