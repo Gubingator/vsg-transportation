@@ -22,13 +22,15 @@ function ScheduleCarpool(props) {
 
       <div className={classes.information}>
         <label>First Name:</label>
-        <input type="text" />
+        <input className={classes.input} type="text" />
         <label>Last Name:</label>
-        <input type="text" />
+        <input className={classes.input} type="text" />
+        <label>Vanderbilt Email:</label>
+        <input className={classes.input} type="text" />
         <label>Date:</label>
-        <input type="date" />
-        <label>Time:</label>
-        <input type="time" />
+        <input className={classes.input} type="date" />
+        <label>Departure Time:</label>
+        <input className={classes.input} type="time" />
 
         <div className={classes.inputGroup}>
           <label>Departure Location: </label>
@@ -44,7 +46,19 @@ function ScheduleCarpool(props) {
           </select>
         </div>
 
-        <button /*onClick={do stuff} */>Add Carpool Request</button>
+        <label>Destination (choose one or type your own): </label>
+          <input list="locations"/>
+          <datalist id="locations">
+              <option value="BNA Airport"></option>
+              <option value="BridgeStone Arena"></option>
+              <option value="Green Hills Mall"></option>
+              <option value="12th South"></option>
+              <option value="Kroger"></option>
+              <option value="Target"></option>
+            </datalist>
+
+        <button /*onClick={do stuff} */ className={classes.button}>Add Carpool Request</button>
+
       </div>
     </div>
   );
