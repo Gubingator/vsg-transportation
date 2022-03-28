@@ -37,9 +37,9 @@ def get_groupme_link():
 :param recipient: The email of the user/recipient.
 :returns: The email message.
 """
-def set_email_content(sender, recipient):
+def set_gm_email_content(sender, recipient):
     msg = EmailMessage()
-    with open("confirmation-template.txt") as emailfile:
+    with open("gm-email-template.txt") as emailfile:
         data = emailfile.read()
         data = data.replace("gm_link", get_groupme_link())
         msg.set_content(data)
@@ -53,12 +53,12 @@ def set_email_content(sender, recipient):
 
 :param user_email: The email of the user/recipient.
 """
-def send_confirmation_email(user_email):
+def send_gm_confirmation_email(user_email):
     sender = "vandytransitcarpool@gmail.com"
     recipient = user_email
     password = kv_client.get_secret("email-pword").value
 
-    msg = set_email_content(sender, recipient)
+    msg = set_gm_email_content(sender, recipient)
 
     with smtplib.SMTP('smtp.gmail.com', 587) as smtpObj:
         smtpObj.starttls()
