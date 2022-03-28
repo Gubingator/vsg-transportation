@@ -15,6 +15,15 @@ import {
 // import "bootstrap/dist/css/bootstrap.min.css";
 
 function ScheduleCarpool(props) {
+  const [First, setFirst] = useState("");
+  const [Last, setLast] = useState("");
+  const [Email, setEmail] = useState("");
+  const [Date, setDate] = useState("");
+  const [Time, setTime] = useState("");
+  const [Departure, setDeparture] = useState("");
+  const [Destination, setDestination] = useState("");
+
+
   return (
     <div>
       <Picture circleText="SCHEDULE A CARPOOL" />
@@ -22,32 +31,61 @@ function ScheduleCarpool(props) {
 
       <div className={classes.information}>
         <label>First Name:</label>
-        <input className={classes.input} type="text" />
+        <input className={classes.input} type="text" 
+          onChange={(event) => {
+          setFirst(event.target.value);
+          }}
+        />
+
         <label>Last Name:</label>
-        <input className={classes.input} type="text" />
+        <input className={classes.input} type="text" 
+          onChange={(event) => {
+          setLast(event.target.value);
+          }}
+        />
         <label>Vanderbilt Email:</label>
-        <input className={classes.input} type="text" />
+        <input className={classes.input} type="text" 
+          onChange={(event) => {
+            setEmail(event.target.value);
+            }}
+        />
         <label>Date:</label>
-        <input className={classes.input} type="date" />
+        <input className={classes.input} type="date" 
+          onChange={(event) => {
+            setDate(event.target.value);
+            }}
+        />
         <label>Departure Time:</label>
-        <input className={classes.input} type="time" />
+        <input className={classes.input} type="time" 
+          onChange={(event) => {
+            setTime(event.target.value);
+            }}
+        />
 
         <div className={classes.inputGroup}>
           <label>Departure Location: </label>
 
-          <select className="custom-select" id="inputGroupSelect">
+          <select className="custom-select" id="inputGroupSelect" 
+            onChange={(event) => {
+            setDeparture(event.target.value);
+            }}
+          >
             <option defaultValue={"Choose..."}>Choose...</option>
-            <option value="1">Highland</option>
-            <option value="2">Kissam/EBI</option>
-            <option value="3">Zeppos</option>
-            <option value="4">Commons</option>
-            <option value="5">Blair</option>
-            <option value="6">Other</option>
+            <option value="Highland">Highland</option>
+            <option value="Kissam/EBI">Kissam/EBI</option>
+            <option value="Zeppos">Zeppos</option>
+            <option value="Commons">Commons</option>
+            <option value="Blair">Blair</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
         <label>Destination (choose one or type your own): </label>
-          <input list="locations"/>
+          <input list="locations"
+            onChange={(event) => {
+              setDestination(event.target.value);
+              }}
+          />
           <datalist id="locations">
               <option value="BNA Airport"></option>
               <option value="BridgeStone Arena"></option>
@@ -57,7 +95,14 @@ function ScheduleCarpool(props) {
               <option value="Target"></option>
             </datalist>
 
-        <button /*onClick={do stuff} */ className={classes.button}>Add Carpool Request</button>
+        <button onClick={ () => {
+          console.log(First);
+          console.log(Last);
+          console.log(Departure)
+          console.log(Time)
+          console.log(Destination)
+        }
+        }  className={classes.button}>Add Carpool Request</button>
 
       </div>
     </div>
