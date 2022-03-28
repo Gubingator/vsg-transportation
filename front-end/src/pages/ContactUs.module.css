@@ -1,0 +1,31 @@
+.text {
+  margin: 0px;
+}
+
+.title {
+  background-color: black;
+  color: #e8a62b;
+  min-height: 100px;
+  font-family: "Abel", sans-serif;
+}
+
+.circle {
+  display: table-cell;
+  margin: 45%;
+  height: 10em;
+  width: 10em;
+  background-color: black;
+  opacity: 0.7;
+  border-radius: 50%;
+  font-family: "Abel";
+  font-size: 20pt;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: bold;
+}
+.centered {
+  position: absolute;
+  top: 15em;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

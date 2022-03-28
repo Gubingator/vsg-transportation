@@ -1,0 +1,12 @@
+.thebutton {
+	float: right;
+	max-width: 90px;
+	max-height: 35px;
+	margin-top: 0px;
+
+}
+
+.thecard {
+	background-color: gainsboro;
+}
+
