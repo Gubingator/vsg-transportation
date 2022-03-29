@@ -14,14 +14,14 @@ import classes from "./Vanderbilt.module.css";
 import Picture from "../components/layout/Picture";
 
 function Vanderbilt(props) {
-  const [VandyVans, setVandyVans] = useState(true);
+  const [VandyRide, setVandyRide] = useState(true);
   const [MoveVU, setMoveVU] = useState(true);
 
   function HandleVandyOnClick() {
-    if (VandyVans) {
-      setVandyVans(false);
+    if (VandyRide) {
+      setVandyRide(false);
     } else {
-      setVandyVans(true);
+      setVandyRide(true);
     }
   }
 
@@ -40,7 +40,7 @@ function Vanderbilt(props) {
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>
           <DropdownCard
-            clicked={VandyVans}
+            clicked={VandyRide}
             title="VandyRide"
             theClick={HandleVandyOnClick}
             text={
@@ -79,6 +79,16 @@ function Vanderbilt(props) {
             }
             link={"https://www.vanderbilt.edu/movevu/movevu-commute-hub/"}
           ></DropdownCard>
+        </Row>
+        <Row>
+          <p className={classes.extraInfo}>
+            For general information see the{" "}
+            <a
+              href={"https://www.vanderbilt.edu/movevu/transportation-options/"}
+            >
+              Vanderbilt Transportation Page.
+            </a>
+          </p>
         </Row>
       </Container>
     </div>

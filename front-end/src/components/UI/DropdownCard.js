@@ -15,10 +15,11 @@ function DropdownCard(props) {
                 style={{
                   fontFamily: "serif",
                   fontSize: "25pt",
+                  fontWeight: "bold",
                   lineHeight: "22pt",
                   paddingTop: "0",
                   paddingBottom: "5px",
-                  paddingLeft: "0px",
+                  paddingLeft: "1.5px",
                   paddingRight: "0",
                   borderRadius: "50%",
                   borderColor: "black",
@@ -40,11 +41,11 @@ function DropdownCard(props) {
                 className={classes.thebutton}
                 style={{
                   fontFamily: "serif",
-                  fontSize: "25pt",
-                  lineHeight: "22pt",
+                  fontSize: "48pt",
+                  lineHeight: "16pt",
                   paddingTop: "0",
-                  paddingBottom: "5px",
-                  paddingLeft: "0px",
+                  paddingBottom: "15px",
+                  paddingLeft: "2.5px",
                   paddingRight: "0",
                   borderRadius: "50%",
                   borderColor: "black",

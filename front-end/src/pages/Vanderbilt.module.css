@@ -1,8 +1,16 @@
 .cardRow {
-	margin-top: 10px;
+  margin-top: 10px;
 }
 
 .page {
-	min-height: 500px;
-	max-width: 80%;
+  min-height: 400px;
+  max-width: 80%;
+  margin-top: 35px;
+}
+
+.extraInfo {
+  font-size: 15pt;
+  font-family: "Open Sans";
+  font-weight: bold;
+  margin-top: 20px;
 }
