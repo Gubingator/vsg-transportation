@@ -2,6 +2,7 @@
   float: right;
   max-width: 35px;
   max-height: 35px;
+  width: 50px;
   margin-top: 2px;
   margin-right: 4px;
   background-color: gainsboro;
@@ -10,16 +11,13 @@
   background-color: gray;
 }
 
-.thebutton:target {
-  background-color: gray;
-}
-
 .thecard {
   background-color: gainsboro;
   font-family: "Open Sans";
-  font-size: 20pt;
+  font-size: 22pt;
   padding-left: 0px;
-  min-height: 70px;
+  min-height: 90px;
+  vertical-align: middle;
 }
 
 .thelink {

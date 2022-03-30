@@ -51,7 +51,19 @@ function ScheduleCarpool(props) {
   return (
     <div>
       <Picture circleText="SCHEDULE A CARPOOL" />
-      <h1>Page to Schedule a carpool</h1>
+      <Container className={classes.instructions}>
+        <Row>
+          <h1> INSTRUCTIONS </h1>
+        </Row>
+        <Row>
+          <p style={{ color: "white", fontFamily: "Open Sans" }}>
+            This carpool feature allows students to find others traveling to the
+            same place at the same time in order to cut transportation cost.
+            <br />
+            <br />
+          </p>
+        </Row>
+      </Container>
 
       <div className={classes.information}>
         <label>First Name:</label>

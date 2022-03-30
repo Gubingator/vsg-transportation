@@ -1,45 +1,54 @@
-  .information {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-  }
+.instructions {
+  background-color: black;
+  min-width: 100%;
+  color: #e8a62b;
+  font-family: "Abel";
+  margin: 0px;
+}
 
-  .inputGroup {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-  }
+.information {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  font-family: "Open Sans";
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
 
 .input {
-    width: 300px;
-    height: 50px;
-    font-size: 20px;
-    padding-left: 10px;
-    margin: 5px;
-  }
+  width: 300px;
+  height: 50px;
+  font-size: 20px;
+  padding-left: 10px;
+  margin: 5px;
+}
 .option {
-    width: 300px;
-    height: 50px;
-    font-size: 20px;
-    padding-left: 10px;
-    margin: 5px;
-  
-  }
-  
-  .button {
-    width: 320px;
-    height: 50px;
-    margin-top: 15px;
-    background-color:green;
-    color: white;
-  } 
-  
-  .button:hover {
-    cursor: pointer;
-    background-color:blue;
-    transition: 0.7s;
-  }
+  width: 300px;
+  height: 50px;
+  font-size: 20px;
+  padding-left: 10px;
+  margin: 5px;
+}
+
+.button {
+  width: 320px;
+  height: 50px;
+  margin-top: 15px;
+  background-color: green;
+  color: white;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: blue;
+  transition: 0.7s;
+}

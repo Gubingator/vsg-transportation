@@ -44,8 +44,7 @@ function Nashville(props) {
 
   return (
     <div>
-      <Picture circleText="NASHVILLE" />
-      <h1>Nashville transportation information</h1>
+      <Picture circleText="NASHVILLE TRANSPORTATION" />
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>
           <DropdownCard
@@ -53,7 +52,15 @@ function Nashville(props) {
             title="WeGO"
             theClick={HandleWeGOnClick}
             text={
-              "WeGo Public Transit is the website for the bus sytems around Nashville."
+              <p>
+                WeGo Public Transit is Nashville’s provider of local and
+                regional bus and commuter rail service. Vanderbilt’s program
+                provides all full-time and part-time Vanderbilt University
+                students, faculty, staff and postdocs with free access to WeGo
+                local buses, regional buses and WeGo Star with their Commodore
+                Card. This service is available for any place and time, not only
+                when commuting to and from campus.
+              </p>
             }
             link={"https://www.wegotransit.com/"}
           ></DropdownCard>
@@ -63,7 +70,27 @@ function Nashville(props) {
             clicked={Lyft}
             title="Lyft"
             theClick={HandleLyftonClick}
-            text={"This is a test 2"}
+            text={
+              <p>
+                Ridehail services like Uber and Lyft can be used on campus. The
+                university is piloting nine designated ridehail pick-up and
+                drop-off locations around campus. The locations are marked with
+                signage and are available to select in the Uber and Lyft mobile
+                apps. The areas include E. Bronson Ingram Circle, Kirkland
+                Esplanade, Sarratt Student Center/Rand Hall, the Engineering and
+                Science Building, McGugin Center, Blakemore House, VRWC Lot 27
+                across from Morgan Circle, Crawford House and Hank Ingram House.
+                <br />
+                <br />
+                Vanderbilt has a preferred partnership with Lyft to offer a
+                flexible transportation option for faculty, staff, and students
+                using ridehail services while conducting official university
+                business. Departments can now establish ride parameters for
+                programmatic transportation needs through the Lyft dashboard.
+                More information about Lyft discounts may be found on the{" "}
+                <a href={"lyft"}>Lyft Page.</a>
+              </p>
+            }
             link={""}
           ></DropdownCard>
         </Row>
@@ -72,8 +99,16 @@ function Nashville(props) {
             clicked={TransitApp}
             title="TransitApp"
             theClick={HandleTransitAppOnClick}
-            text={"This is a test 3"}
-            link={"https://transitapp.com/region/nashville"}
+            text={
+              <p>
+                Other information for transportation in Nashville can be found
+                on the transit app. Included is information about planning rides
+                on the WeGo Buses as well as lyft. Follow this{" "}
+                <a href={"https://transitapp.com/region/nashville"}>link</a> and
+                download the app.
+              </p>
+            }
+            link={""}
           ></DropdownCard>
         </Row>
       </Container>
