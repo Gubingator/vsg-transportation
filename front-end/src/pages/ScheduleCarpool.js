@@ -3,18 +3,15 @@ import { Link } from "react-router-dom";
 import { useState, useRef } from "react";
 import Picture from "../components/layout/Picture";
 
-import {
-  Button,
-  Alert,
-  Container,
-  Navbar,
-  NavDropdown,
-  Nav,
-  Overlay,
-} from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
+import { useDispatch, useSelector } from "react-redux";
+import { NewCarpool } from "../services/carpools";
+
 
 function ScheduleCarpool(props) {
+  const dispatch = useDispatch();
+
   const [First, setFirst] = useState("");
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
@@ -23,6 +20,33 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
+  function HandleOnClick() {
+    console.log(First);
+    console.log(Last);
+    console.log(Email);
+    console.log(Date);
+    console.log(Time);
+    console.log(Departure);
+    console.log(Destination);
+    const student = First + " " + Last;
+    const date_array = Date.split("-");
+
+    const new_carpool = {
+      id: 1,
+      students: [student],
+      departure: Departure,
+      destination: Destination,
+      year: date_array[0],
+      month: date_array[1],
+      day: date_array[2],
+      time: Time + ":00"
+    }
+
+    console.log(new_carpool);
+
+    NewCarpool(dispatch, new_carpool);
+
+  }
 
   return (
     <div>
@@ -31,43 +55,55 @@ function ScheduleCarpool(props) {
 
       <div className={classes.information}>
         <label>First Name:</label>
-        <input className={classes.input} type="text" 
+        <input
+          className={classes.input}
+          type="text"
           onChange={(event) => {
-          setFirst(event.target.value);
+            setFirst(event.target.value);
           }}
         />
 
         <label>Last Name:</label>
-        <input className={classes.input} type="text" 
+        <input
+          className={classes.input}
+          type="text"
           onChange={(event) => {
-          setLast(event.target.value);
+            setLast(event.target.value);
           }}
         />
         <label>Vanderbilt Email:</label>
-        <input className={classes.input} type="text" 
+        <input
+          className={classes.input}
+          type="text"
           onChange={(event) => {
             setEmail(event.target.value);
-            }}
+          }}
         />
         <label>Date:</label>
-        <input className={classes.input} type="date" 
+        <input
+          className={classes.input}
+          type="date"
           onChange={(event) => {
             setDate(event.target.value);
-            }}
+          }}
         />
         <label>Departure Time:</label>
-        <input className={classes.input} type="time" 
+        <input
+          className={classes.input}
+          type="time"
           onChange={(event) => {
             setTime(event.target.value);
-            }}
+          }}
         />
 
         <div className={classes.inputGroup}>
           <label>Departure Location: </label>
 
-          <select className="custom-select" id="inputGroupSelect" 
+          <select
+            className="custom-select"
+            id="inputGroupSelect"
             onChange={(event) => {
-            setDeparture(event.target.value);
+              setDeparture(event.target.value);
             }}
           >
             <option defaultValue={"Choose..."}>Choose...</option>
@@ -81,29 +117,27 @@ function ScheduleCarpool(props) {
         </div>
 
         <label>Destination (choose one or type your own): </label>
-          <input list="locations"
-            onChange={(event) => {
-              setDestination(event.target.value);
-              }}
-          />
-          <datalist id="locations">
-              <option value="BNA Airport"></option>
-              <option value="BridgeStone Arena"></option>
-              <option value="Green Hills Mall"></option>
-              <option value="12th South"></option>
-              <option value="Kroger"></option>
-              <option value="Target"></option>
-            </datalist>
+        <input
+          list="locations"
+          onChange={(event) => {
+            setDestination(event.target.value);
+          }}
+        />
+        <datalist id="locations">
+          <option value="BNA Airport"></option>
+          <option value="BridgeStone Arena"></option>
+          <option value="Green Hills Mall"></option>
+          <option value="12th South"></option>
+          <option value="Kroger"></option>
+          <option value="Target"></option>
+        </datalist>
 
-        <button onClick={ () => {
-          console.log(First);
-          console.log(Last);
-          console.log(Departure)
-          console.log(Time)
-          console.log(Destination)
-        }
-        }  className={classes.button}>Add Carpool Request</button>
-
+        <button
+          onClick={HandleOnClick}
+          className={classes.button}
+        >
+          Add Carpool Request
+        </button>
       </div>
     </div>
   );
