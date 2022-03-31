@@ -27,21 +27,21 @@ function MainNavigation() {
               <NavDropdown.Item as={Link} to={"/"}>
                 HOW THIS APP WORKS
               </NavDropdown.Item>
-              <NavDropdown.Item href="contact-us">CONTACT US</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/contact-us"}>CONTACT US</NavDropdown.Item>
             </NavDropdown>
             <NavDropdown title="INFORMATION" id="collasible-nav-dropdown">
-              <NavDropdown.Item href="vanderbilt">VANDERBILT</NavDropdown.Item>
-              <NavDropdown.Item href="nashville">NASHVILLE</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/vanderbilt"}>VANDERBILT</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/nashville"}>NASHVILLE</NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link href="lyft">LYFT</Nav.Link>
+            <Nav.Link as={Link} to={"/lyft"}>LYFT</Nav.Link>
             <NavDropdown title="CARPOOL" id="collasible-nav-dropdown">
-              <NavDropdown.Item href="how-to-use">
+              <NavDropdown.Item as={Link} to={"/how-to-use"}>
                 HOW TO USE
               </NavDropdown.Item>
-              <NavDropdown.Item href="schedule-carpool">
+              <NavDropdown.Item as={Link} to={"/schedule-carpool"}>
                 SCHEDULE A CARPOOL
               </NavDropdown.Item>
-              <NavDropdown.Item href="join-carpool">
+              <NavDropdown.Item as={Link} to={"/join-carpool"}>
                 JOIN A CARPOOL
               </NavDropdown.Item>
             </NavDropdown>

@@ -1,13 +1,11 @@
 import CarpoolItem from "./CarpoolItem";
-import { Container} from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import DateBlock from "./DateBlock";
-
 
 function CarpoolList(props) {
   let CurDate = "";
 
-  function dayOfTheWeek(day, month, year) {
-    const date_string = year + "-" + month + "-" + day + "T00:00:00";
+  function dayOfTheWeek(date_string) {
     const date = new Date(date_string);
     const dayOfTheWeek = date.getDay();
 
@@ -32,23 +30,21 @@ function CarpoolList(props) {
     <Container>
       {props.carpoolList.map((carpool) => {
         let update = false;
-        const date = dayOfTheWeek(
-          carpool["day"],
-          carpool["month"],
-          carpool["year"]
-        );
-        if (date !== CurDate) {
-          CurDate = date;
+        const date_string = carpool["year"] + "-" + carpool["month"] + "-" + carpool["day"] + "T00:00:00";
+        const date = dayOfTheWeek(date_string);
+        if (date_string !== CurDate) {
+          CurDate = date_string;
           update = true;
         }
         return (
           <div key={carpool.id}>
             {update ? (
               <DateBlock
-                dayOfWeek={CurDate}
+                dayOfWeek={date}
                 year={carpool["year"]}
                 month={carpool["month"]}
                 day={carpool["day"]}
+                syle={{ fontFamily: "Open Sans" }}
               />
             ) : (
               <div></div>

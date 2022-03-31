@@ -18,9 +18,18 @@ export const stemsSlice = createSlice({
 			});
       return { ...state, carpools: [...Carpools_1] };
     },
+    updateCarpool: (state, action) => {
+      const new_carpools = state.carpools.map((carpool) => {
+        if (carpool.id === action.payload.id){
+          return action.payload;
+        } 
+        return action.payload;
+      })
+      return { ...state, carpools: [...new_carpools] };
+    }
   },
 });
 
-export const { newCarpool, setCarpools, deleteCarpool } = stemsSlice.actions;
+export const { newCarpool, setCarpools, deleteCarpool, updateCarpool} = stemsSlice.actions;
 
 export default stemsSlice.reducer;

@@ -20,21 +20,6 @@ function Picture(props) {
     );
   }
 
-  //   return (
-  //     <div>
-  //       <img
-  //         src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
-  //         className="img-fluid"
-  //         alt="Responsive image"
-  //       />
-  //       {props.circleText !== "" ? (
-  //         <Circle text={props.circleText} />
-  //       ) : (
-  //         <div></div>
-  //       )}
-  //     </div>
-  //   );
-
   return (
     <div>
       <Figure fluid className={classes.fig}>

@@ -28,7 +28,6 @@ function JoinCarpool(props) {
   return (
     <div className={classes.page}>
       <Picture circleText="JOIN A CARPOOL" />
-      <h1>Page to join a carpool</h1>
       <CarpoolList carpoolList={carpools} />
     </div>
   );
