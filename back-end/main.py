@@ -31,16 +31,28 @@ def parse_carpool_set_sql(carpool):
 
 
 def parse_carpool_sql(carpool):
-    # format: (1, This is a list of students, The location, 2022-03-21 04:00:00)
+    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
     list_students = []
     for student in str(carpool[1]).split(student_delimiter):
         list_students.append(student)
-    the_date_time = str(carpool[3]).split(" ")
+    print(list_students)
+    the_date_time = str(carpool[4]).split(" ")
     the_date = the_date_time[0].split("-")
-    element = {'id': carpool[0], 'students': list_students, 'location': str(carpool[2]), 'year': the_date[0],
-               'month': the_date[1], 'day': the_date[2], 'time': the_date_time[1]}
+    element = {'id': carpool[0], 'students': list_students, 'departure': str(carpool[2]),
+               'destination': str(carpool[3]), 'year': the_date[0], 'month': the_date[1],
+               'day': the_date[2], 'time': the_date_time[1]}
     return element
 
+def add_student(carpool, new_student):
+    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
+    new_carpool = list([])
+
+    for i in range(len(carpool)):
+        if i == 1:
+            new_carpool.append(carpool[i] + student_delimiter + new_student)
+            continue
+        new_carpool.append(carpool[i])
+    return tuple(new_carpool)
 
 # Construct connection string
 
@@ -63,26 +75,23 @@ print("Finished dropping table (if existed).")
 
 # Create table
 cursor.execute(
-    "CREATE TABLE carpools (id INTEGER PRIMARY KEY AUTO_INCREMENT, student_list VARCHAR(255), location VARCHAR(255), date_time DATETIME);")
+    "CREATE TABLE carpools (id INTEGER PRIMARY KEY AUTO_INCREMENT, student_list VARCHAR(255), departure VARCHAR(255), destination VARCHAR(255) ,date_time DATETIME);")
 print("Finished creating table.")
 
 # Insert some data into table
 cursor.execute(
-    "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 1, Student 2", "Hank Circle", "2022-3-21 4:00"))
+    "INSERT INTO carpools (student_list, departure, destination, date_time) VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
+    ("Student 1, Student 2", "Hank Circle", "Chik-fil-a",  "2022-3-21 4:00"))
 print("Inserted", cursor.rowcount, "row(s) of data.")
 cursor.execute(
-    "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 3, Student 4", "Morgan Circle", "2022-3-21 6:00"))
+    "INSERT INTO carpools (student_list, departure, destination, date_time) VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
+    ("Student 3, Student 4", "Morgan Circle", "Broadway",  "2022-3-21 6:00"))
 
 cursor.execute(
-    "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-    ("Student 5", "EBI Circle", "2022-3-22 18:00"))
+    "INSERT INTO carpools (student_list, departure, destination, date_time) VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+    ("Student 5", "EBI Circle", "BNA Airport", "2022-3-22 18:00"))
 
-# cursor.execute("INSERT INTO inventory (name, quantity) VALUES (%s, %s);", ("orange", 154))
-# print("Inserted",cursor.rowcount,"row(s) of data.")
-# cursor.execute("INSERT INTO inventory (name, quantity) VALUES (%s, %s);", ("apple", 100))
-# print("Inserted",cursor.rowcount,"row(s) of data.")
+
 
 # Read data
 cursor.execute("SELECT * FROM carpools;")
@@ -121,12 +130,11 @@ class CarpoolPut(Resource):
         student_string = ""
         for stu in the_students:
             student_string = student_string + stu + student_delimiter
-
+        student_string = student_string[:len(student_string)-2]
         the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
-        print(the_date)
         cursor.execute(
-            "INSERT INTO carpools (student_list, location, date_time) VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-            (student_string, inst['location'], the_date))
+            "INSERT INTO carpools (student_list, departure, destination, date_time) VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+            (student_string, inst['departure'], inst['destination'],  the_date))
         print("Inserted", cursor.rowcount, "row(s) of data.")
         cursor.execute("SELECT LAST_INSERT_ID();")
         rows = cursor.fetchall()
@@ -134,11 +142,32 @@ class CarpoolPut(Resource):
         return {'id': rows[0][0]}
 
 
+class JoinCarpool(Resource):
+    def get(self, carpool_id):
+        data = request.get_json(silent=True)
+        data = str(data).replace("\'", "\"")
+        inst = json.loads(str(data))
+        
+        print(carpool_id)
+        cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
+        rows = cursor.fetchall()
+        new_carpool = add_student(rows[0], 'Ethan Piper')
+        print(new_carpool)
+        cursor.execute("UPDATE carpools "
+                       "SET student_list = %s "
+                       "WHERE id = %s",
+                       (str(new_carpool[1]), carpool_id))
+        conn.commit()
+        return {'carpool': parse_carpool_sql(new_carpool)}
+        #return {'carpool': parse_carpool_sql(rows)}
+
+
 
 # curl http://localhost:5000/carpools/1 -d "data={'id': 1, 'help':2}" -X POST
 # curl http://localhost:5000/carpools/1 -d "data={\"id\": 1, \"help\":2}" -X POST
 api.add_resource(AccessCarpool, '/')
 api.add_resource(CarpoolPut, '/carpool/<string:carpool_id>')
+api.add_resource(JoinCarpool, '/carpool/join/<string:carpool_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
