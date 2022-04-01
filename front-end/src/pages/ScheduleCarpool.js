@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { useState, useRef } from "react";
 import Picture from "../components/layout/Picture";
 
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Container,Row } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
+import validator from 'validator'
 
 
 function ScheduleCarpool(props) {
@@ -19,6 +20,23 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState('')
+    
+  const validateDate = (value) => {
+    /*checks if date is in the past */
+      if (validator.isAfter(value)) {
+        setErrorMessage('Valid Date')
+      } 
+      else {
+        setErrorMessage('Enter Valid Date!')
+      }
+  }
+
+  function setMinDate(){
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementsById("datePickerId")[0].setAttribute('min', today);
+  }
 
   function HandleOnClick() {
     console.log(First);
@@ -65,17 +83,20 @@ function ScheduleCarpool(props) {
         </Row>
       </Container>
 
-      <div className={classes.information}>
+      <div>
+      <form className={classes.information}>
         <label>First Name:</label>
         <input
           className={classes.input}
           type="text"
+          required maxlength="45"
+          pattern="([a-zA-Z]+)"
           onChange={(event) => {
             setFirst(event.target.value);
           }}
         />
 
-        <label>Last Name:</label>
+        <label>Last Name (optional):</label>
         <input
           className={classes.input}
           type="text"
@@ -86,34 +107,48 @@ function ScheduleCarpool(props) {
         <label>Vanderbilt Email:</label>
         <input
           className={classes.input}
-          type="text"
+          type="email"
+          required placeholder="Enter a valid Vanderbilt email"
+          pattern=".+vanderbilt.edu"
           onChange={(event) => {
             setEmail(event.target.value);
           }}
         />
+
         <label>Date:</label>
         <input
           className={classes.input}
+          id="datePickerId"
           type="date"
+          required
           onChange={(event) => {
             setDate(event.target.value);
+            validateDate(event.target.value);
           }}
-        />
+        />   
+
+        <span style={{
+          fontWeight: 'bold',
+          color: 'red',
+        }}>{errorMessage}</span>
+
         <label>Departure Time:</label>
         <input
           className={classes.input}
           type="time"
+          required
           onChange={(event) => {
             setTime(event.target.value);
           }}
         />
 
-        <div className={classes.inputGroup}>
+        {/* <div className={classes.inputGroup}>
           <label>Departure Location: </label>
 
           <select
             className="custom-select"
             id="inputGroupSelect"
+            required
             onChange={(event) => {
               setDeparture(event.target.value);
             }}
@@ -126,11 +161,30 @@ function ScheduleCarpool(props) {
             <option value="Blair">Blair</option>
             <option value="Other">Other</option>
           </select>
-        </div>
+        </div> */}
+
+        <label>Departure Location (choose one or type your own): </label>
+        <input
+          list="departLocations"
+          required
+          onChange={(event) => {
+            setDestination(event.target.value);
+          }}
+        />
+
+        <datalist id="departLocations">
+          <option value="Highland"></option>
+          <option value="Kissam/EBI"></option>
+          <option value="Zeppos"></option>
+          <option value="Blair"></option>
+          <option value="Commons"></option>
+          <option value="Other"></option>
+        </datalist>
 
         <label>Destination (choose one or type your own): </label>
         <input
           list="locations"
+          required
           onChange={(event) => {
             setDestination(event.target.value);
           }}
@@ -143,15 +197,22 @@ function ScheduleCarpool(props) {
           <option value="Kroger"></option>
           <option value="Target"></option>
         </datalist>
-
+        
         <button
-          onClick={HandleOnClick}
+          type="submit"
+          onClick={
+            errorMessage == 'Valid Date' ? HandleOnClick : undefined 
+          }
           className={classes.button}
         >
           Add Carpool Request
         </button>
+        
+      </form>
+
       </div>
     </div>
+    
   );
 }
 
