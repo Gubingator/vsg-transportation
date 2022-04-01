@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useState, useRef } from "react";
 import Picture from "../components/layout/Picture";
 
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Row, Col, Container} from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";

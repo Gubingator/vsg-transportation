@@ -1,4 +1,4 @@
-import { Col, Row, Card, Button} from "react-bootstrap";
+import { Col, Row, Card, Button } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 
 function CarpoolItem(props) {
@@ -20,8 +20,8 @@ function CarpoolItem(props) {
         </Col>
         <Col>Leaving Time: {props.carpool_ref["time"].substring(0, 5)}</Col>
         <Col>
-				<Button className={classes.buttonData}>Join Carpool</Button>
-				</Col>
+          <Button className={classes.buttonData}>Join Carpool</Button>
+        </Col>
       </Row>
     </Card>
   );
