@@ -4,15 +4,25 @@
 }
 
 .cardData {
-  margin-top: 10px;
-  font-family: "Open Sans";
+  margin-top: 7px;
+  margin-bottom: 13px;
+  padding-top: 5px;
+  font-family: "Montserrat";
+  background-color: #e8a62b;
 }
 
 .buttonData {
-  max-width: 120px;
-  max-height: 40px;
+  max-width: 80px;
   margin-top: 0px;
+  background-color: #404040;
+  font-size: 18pt;
+  border-color: #404040;
+  font-family: "Abel";
+  color: white;
+  font-weight: bold;
+}
+
+.buttonData:hover {
   background-color: green;
   border-color: green;
-  font-family: "Open Sans";
 }

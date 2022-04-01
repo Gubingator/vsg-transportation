@@ -15,8 +15,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function MainNavigation() {
   return (
-    <Navbar className={classes.navbarCustom} collapseOnSelect expand="sm">
-      <Container>
+    <Navbar className={classes.navbarCustom} collapseOnSelect expand="md">
+      <Container style={{ margin: "6px" }}>
         <Navbar.Brand as={Link} to={"/"} className={classes.mainlogo}>
           VANDY TRANSIT
         </Navbar.Brand>
@@ -27,13 +27,21 @@ function MainNavigation() {
               <NavDropdown.Item as={Link} to={"/"}>
                 HOW THIS APP WORKS
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to={"/contact-us"}>CONTACT US</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/contact-us"}>
+                CONTACT US
+              </NavDropdown.Item>
             </NavDropdown>
             <NavDropdown title="INFORMATION" id="collasible-nav-dropdown">
-              <NavDropdown.Item as={Link} to={"/vanderbilt"}>VANDERBILT</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to={"/nashville"}>NASHVILLE</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/vanderbilt"}>
+                VANDERBILT
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to={"/nashville"}>
+                NASHVILLE
+              </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link as={Link} to={"/lyft"}>LYFT</Nav.Link>
+            <Nav.Link as={Link} to={"/lyft"}>
+              LYFT
+            </Nav.Link>
             <NavDropdown title="CARPOOL" id="collasible-nav-dropdown">
               <NavDropdown.Item as={Link} to={"/how-to-use"}>
                 HOW TO USE

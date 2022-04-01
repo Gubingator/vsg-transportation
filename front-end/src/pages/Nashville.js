@@ -49,7 +49,7 @@ function Nashville(props) {
         <Row className={classes.cardRow}>
           <DropdownCard
             clicked={WeGO}
-            title="WeGO"
+            title="WeGO Buses"
             theClick={HandleWeGOnClick}
             text={
               <p>
