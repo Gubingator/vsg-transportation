@@ -1,4 +1,6 @@
-# Creates a new GroupMe group chat, and sends an email to recipient with the link.
+# Sends all the different confirmation emails for the carpool feature.
+#   1. Emails the user a confirmation code, and verifies that the inputted code matches.
+#   2. Creates a new GroupMe group chat, and sends an email to recipient with the link.
 #
 # Author: Sarah Zhang
 
@@ -8,15 +10,22 @@ import smtplib
 from email.message import EmailMessage
 import config
 
-# """Helper function that generates a 6-character verification code."""
-# def get_verification_code():
-#     secrets.token_hex(6).upper
+verification_code = "invalid-code"
+
+"""Helper function that generates a 6-character verification code."""
+def set_verification_code():
+    verification_code = secrets.token_hex(6).upper
+    verification_code
+
+"""Helper function that returns the 6-character verification code."""
+def get_verification_code():
+    verification_code
 
 
-# """Helper function that verifies the user-inputted verification code."""
-# # TODO: make the verification code only valid for 1 hour
-# def verify_input_code(input_code):
-#     input_code
+"""Helper function that verifies the user-inputted verification code."""
+# TODO: make the verification code only valid for 1 hour
+def verify_input_code(input_code):
+    verification_code == input_code
 
 
 """Helper function that sets the content of the user verification email based on the template.
