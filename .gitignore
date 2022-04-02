@@ -11,6 +11,8 @@
 
 # production
 /front-end/build
+/front-end/package-lock.json
+/package-lock.json
 
 # misc
 .DS_Store
