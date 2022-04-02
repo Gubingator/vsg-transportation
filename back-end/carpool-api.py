@@ -79,6 +79,8 @@ def add_student(carpool, new_student):
     return tuple(new_carpool)
 
 
+
+
 # Construct connection string
 
 try:
@@ -180,7 +182,7 @@ class CarpoolPut(Resource):
         cursor.execute(
             "INSERT INTO carpools "
             "(student_list, departure, destination, date_time) "
-            "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+            "VALUES (%s, %s, %s, STR_TO _DATE(%s, '%Y-%m-%d %H:%i'));",
             (student_string, inst['departure'], inst['destination'], the_date))
 
         # Get the last inserted id in the database.
@@ -223,11 +225,21 @@ class JoinCarpool(Resource):
         return {'carpool': parse_carpool_sql(new_carpool)}
 
 
+# Delete the carpool at the id specified
+#
+# @param carpool_id The id of the carpool to be deleted
+class DeleteCarpool(Resource):
+    def delete(self, carpool_id):
+        cursor.execute("DELETE FROM carpools WHERE id = %s",
+                       list(carpool_id))
+        conn.commit()
+
 # curl http://localhost:5000/carpools/1 -d "data={'id': 1, 'help':2}" -X POST
 # curl http://localhost:5000/carpools/1 -d "data={\"id\": 1, \"help\":2}" -X POST
 api.add_resource(AccessCarpool, '/')
 api.add_resource(CarpoolPut, '/carpool')
 api.add_resource(JoinCarpool, '/carpool/join/<string:carpool_id>')
+api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
 
 if __name__ == '__main__':
     # Turn on the app
