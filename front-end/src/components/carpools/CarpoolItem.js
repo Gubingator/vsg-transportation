@@ -2,14 +2,13 @@ import { Col, Row, Card, Button } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 
 function CarpoolItem(props) {
-  console.log(props.carpool_ref);
 
   return (
     <Card className={classes.cardData}>
       <Row>
         <Col>Depature: {props.carpool_ref["departure"]}</Col>
         <Col>Destination: {props.carpool_ref["destination"]}</Col>
-        <Col>Open seats: {3 - props.carpool_ref["students"].length}</Col>
+        <Col>Open seats: {4 - props.carpool_ref["students"].length}</Col>
         <Col>
           Studuents:
           <ul className={classes.list}>
