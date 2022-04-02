@@ -7,7 +7,6 @@ import { Form, Button, Container,Row } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
-// import validator from 'validator'
 
 
 function ScheduleCarpool(props) {
@@ -145,7 +144,7 @@ function ScheduleCarpool(props) {
           list="departLocations"
           required
           onChange={(event) => {
-            setDestination(event.target.value);
+            setDeparture(event.target.value);
           }}
         />
 
