@@ -27,7 +27,7 @@ const axiosInstance = axios.create({
  */
 export const SendEmail = async (email) => {
   try {
-    const toSend = { email: email };
+    const toSend = { 'email': email };
 
     axios
       .post(FlaskURL + "email/", toSend, config)
@@ -52,7 +52,7 @@ export const SendEmail = async (email) => {
  */
 export const SendCode = async (email, code) => {
   try {
-    const toSend = { email: email, code: code };
+    const toSend = { 'email': email, 'code': code };
 
     axios
       .post(FlaskURL + "code/", toSend, config)
