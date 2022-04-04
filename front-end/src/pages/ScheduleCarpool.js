@@ -1,13 +1,12 @@
 import classes from "./ScheduleCarpool.module.css";
 import { Link } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Picture from "../components/layout/Picture";
 
 import { Form, Button, Container,Row } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
-import validator from 'validator'
 
 
 function ScheduleCarpool(props) {
@@ -21,22 +20,26 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState('')
-    
-  const validateDate = (value) => {
-    /*checks if date is in the past */
-      if (validator.isAfter(value)) {
-        setErrorMessage('Valid Date')
-      } 
-      else {
-        setErrorMessage('Enter Valid Date!')
-      }
+  function setMinDate(){
+    const current = new window.Date();
+    //.toISOString().split('T')[0];
+    var month = current.getMonth()+1;
+    var strMonth = String(month);
+    if(month < 10) strMonth = '0' + String(month);
+
+    var day = current.getDate();
+    var strDay = String(day);
+    if(day < 10) strDay = '0' + String(day);
+
+
+    const date = `${current.getFullYear()}-${strMonth}-${strDay}`;
+    console.log(date);
+    document.getElementById('datePickerId').setAttribute('min', date);
   }
 
-  function setMinDate(){
-    var today = new Date().toISOString().split('T')[0];
-    document.getElementsById("datePickerId")[0].setAttribute('min', today);
-  }
+  useEffect(() => {
+    setMinDate();
+  }, []);
 
   function HandleOnClick() {
     console.log(First);
@@ -89,7 +92,7 @@ function ScheduleCarpool(props) {
         <input
           className={classes.input}
           type="text"
-          required maxlength="45"
+          required maxLength="40"
           pattern="([a-zA-Z]+)"
           onChange={(event) => {
             setFirst(event.target.value);
@@ -108,7 +111,7 @@ function ScheduleCarpool(props) {
         <input
           className={classes.input}
           type="email"
-          required placeholder="Enter a valid Vanderbilt email"
+          required placeholder="Enter valid Vanderbilt email"
           pattern=".+vanderbilt.edu"
           onChange={(event) => {
             setEmail(event.target.value);
@@ -123,14 +126,8 @@ function ScheduleCarpool(props) {
           required
           onChange={(event) => {
             setDate(event.target.value);
-            validateDate(event.target.value);
           }}
         />   
-
-        <span style={{
-          fontWeight: 'bold',
-          color: 'red',
-        }}>{errorMessage}</span>
 
         <label>Departure Time:</label>
         <input
@@ -142,33 +139,12 @@ function ScheduleCarpool(props) {
           }}
         />
 
-        {/* <div className={classes.inputGroup}>
-          <label>Departure Location: </label>
-
-          <select
-            className="custom-select"
-            id="inputGroupSelect"
-            required
-            onChange={(event) => {
-              setDeparture(event.target.value);
-            }}
-          >
-            <option defaultValue={"Choose..."}>Choose...</option>
-            <option value="Highland">Highland</option>
-            <option value="Kissam/EBI">Kissam/EBI</option>
-            <option value="Zeppos">Zeppos</option>
-            <option value="Commons">Commons</option>
-            <option value="Blair">Blair</option>
-            <option value="Other">Other</option>
-          </select>
-        </div> */}
-
         <label>Departure Location (choose one or type your own): </label>
         <input
           list="departLocations"
           required
           onChange={(event) => {
-            setDestination(event.target.value);
+            setDeparture(event.target.value);
           }}
         />
 
@@ -201,7 +177,7 @@ function ScheduleCarpool(props) {
         <button
           type="submit"
           onClick={
-            errorMessage == 'Valid Date' ? HandleOnClick : undefined 
+            HandleOnClick()
           }
           className={classes.button}
         >

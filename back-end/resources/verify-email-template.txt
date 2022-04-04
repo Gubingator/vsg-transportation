@@ -1,0 +1,7 @@
+Dear Student,
+
+Thank you for using Vandy Transit Carpools! Here is the code you need to verify your email address:
+
+verification_code
+
+If you are not trying to use Vandy Transit Carpools, please ignore this email. It is possible that another user entered in their email address incorrectly.
