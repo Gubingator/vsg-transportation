@@ -1,0 +1,1 @@
+web: node ./front-end/src/app.js
