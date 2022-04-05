@@ -1,1 +1,0 @@
- web: node ./front-end/App.js
