@@ -8,7 +8,6 @@ import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
-import validator from "validator";
 
 function ScheduleCarpool(props) {
   const dispatch = useDispatch();
@@ -23,7 +22,6 @@ function ScheduleCarpool(props) {
 
   function setMinDate() {
     const current = new window.Date();
-    //.toISOString().split('T')[0];
     var month = current.getMonth() + 1;
     var strMonth = String(month);
     if (month < 10) strMonth = "0" + String(month);
@@ -40,8 +38,6 @@ function ScheduleCarpool(props) {
   useEffect(() => {
     setMinDate();
   }, []);
-
-  const [errorMessage, setErrorMessage] = useState("");
 
   const [Schedule, setSchedule] = useState(true);
 
@@ -91,15 +87,6 @@ function ScheduleCarpool(props) {
       this.setShow(false);
     }
   }
-
-  const validateDate = (value) => {
-    /*checks if date is in the past */
-    if (validator.isAfter(value)) {
-      setErrorMessage("Valid Date");
-    } else {
-      setErrorMessage("Enter Valid Date!");
-    }
-  };
 
   function HandleEmailOnClick() {
     console.log(First);
@@ -191,7 +178,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDate(event.target.value);
-              validateDate(event.target.value);
             }}
           />
 
@@ -219,7 +205,7 @@ function ScheduleCarpool(props) {
             list="departLocations"
             required
             onChange={(event) => {
-              setDestination(event.target.value);
+              setDeparture(event.target.value);
             }}
           />
 
