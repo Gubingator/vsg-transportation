@@ -14,10 +14,13 @@ import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 import { SendCode } from "../services/verify";
 >>>>>>> 6665eed9be2943f5c5e470a2ddf759187f1a27df
+=======
+>>>>>>> Stashed changes
 
 function ScheduleCarpool(props) {
   const dispatch = useDispatch();
