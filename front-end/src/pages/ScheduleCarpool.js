@@ -27,11 +27,9 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState("");
 
   function setMinDate() {
     const current = new window.Date();
-    //.toISOString().split('T')[0];
     var month = current.getMonth() + 1;
     var strMonth = String(month);
     if (month < 10) strMonth = "0" + String(month);
