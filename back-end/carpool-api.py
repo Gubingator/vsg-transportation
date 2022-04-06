@@ -296,19 +296,21 @@ class SendVerificationEmail(Resource):
         verification_code = conf_email.get_verification_code()
         conf_email.set_verify_email_content(verification_code, user_email)
 
-        # Grab the carpool id from the database
-        cursor.execute("SELECT id "
-                       "FROM carpools "
-                       "WHERE email = %s", user_email)
-        rows = cursor.fetchall()
+        with conn.cursor(buffered=True) as cursor:
+            # Grab the carpool id from the database
+            cursor.execute("SELECT id "
+                        "FROM carpools "
+                        "WHERE email = %s", user_email)
+            rows = cursor.fetchall()
 
-        # Insert the verification code into the database
-        cursor.execute("INSERT INTO passengers "
-                       "(carpool_id, email, code, created_at) "
-                       "VALUES (%s, %s, %s, NOW());",
-                       rows[0], user_email, verification_code)
+            # Insert the verification code into the database
+            cursor.execute("INSERT INTO passengers "
+                        "(carpool_id, email, code, created_at) "
+                        "VALUES (%s, %s, %s, NOW());",
+                        rows[0], user_email, verification_code)
         
-        conn.commit()
+            conn.commit()
+            cursor.close()
 
 
 # Verify that the user-inputted confirmation code matches the one emailed earlier,
@@ -324,13 +326,17 @@ class VerifyCodeAndSendGroupLink(Resource):
 
         # Grab the emailed code from the database if it was sent less than 1 hour ago
         passenger_id = inst['passenger_id']
-        cursor.execute("SELECT email, code "
-                       "FROM passengers "
-                       "WHERE passenger_id = %s"
-                       "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR)",
-                       passenger_id)
-        rows = cursor.fetchall()
-        conn.commit()
+
+        rows = None
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute("SELECT email, code "
+                        "FROM passengers "
+                        "WHERE passenger_id = %s"
+                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR)",
+                        passenger_id)
+            rows = cursor.fetchall()
+            conn.commit()
+            cursor.close()
 
         if (rows[1] == inst['code']):
             send_carpool_email(passenger_id, rows[0])
