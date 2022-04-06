@@ -8,6 +8,7 @@
 
 # testing
 /front-end/coverage
+.pytest_cache
 
 # production
 /front-end/build

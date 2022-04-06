@@ -4,52 +4,58 @@
 #
 # Author: Sarah Zhang
 
-import secrets
+import secrets, string
+import re
 import requests
 import smtplib
 from email.message import EmailMessage
 import config
 
-verification_code = "invalid-code"
 
-"""Helper function that generates a 6-character verification code."""
-def set_verification_code():
-    verification_code = secrets.token_hex(6).upper
-    verification_code
-
-"""Helper function that returns the 6-character verification code."""
+"""Generates a 6-character verification code."""
 def get_verification_code():
-    verification_code
+    alphanum = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphanum) for i in range(6))
 
 
-"""Helper function that verifies the user-inputted verification code."""
-# TODO: make the verification code only valid for 1 hour
-def verify_input_code(input_code):
-    verification_code == input_code
+"""Checks if the user email is a valid vanderbilt.edu email address.
+
+:param recipient: The email address to check.
+:returns: True if the email address is a vanderbilt.edu email, False otherwise.
+"""
+def is_valid_email_address(email):
+    regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+
+    if not re.search(regex, email):
+        return False
+    
+    domain = email.split('@')[1]
+    return domain == "vanderbilt.edu"
 
 
-"""Helper function that sets the content of the user verification email based on the template.
+"""Sets the content of the user verification email based on the template.
 
+:param verification_code: The confirmation code.
 :param recipient: The email of the user/recipient.
 :returns: The email message.
 """
-def set_verify_email_content(recipient):
+def set_verify_email_content(verification_code, recipient):
     msg = EmailMessage()
-    with open("verify-email-template.txt") as emailfile:
+    with open("back-end\\resources\\verify-email-template.txt") as emailfile:
         data = emailfile.read()
-        data = data.replace("verification_code", get_verification_code())
+        data = data.replace("verification_code", verification_code)
         msg.set_content(data)
-    msg['Subject'] = 'Vandy Transit Carpools Verification'
+    msg['Subject'] = 'Vandy Transit Carpools: Confirm Your Email'
     msg['From'] = config.sender
     msg['To'] = recipient
     return msg
 
 
-"""Helper function that creates a new GroupMe group chat, and returns the link.
+"""Creates a new GroupMe group chat, and returns the link.
 
 :returns: The link to join the new GroupMe chat.
 """
-def get_groupme_link():
+def create_groupme_link():
     gm_content = {
         "name" : "Vandy Transit Carpool Group",
         "share" : True
@@ -60,22 +66,49 @@ def get_groupme_link():
     return joingroup_link
 
 
-"""Helper function that sets the content of the GroupMe confirmation email based on the template.
+"""Sets the content of the GroupMe confirmation email based on the template.
 
-:param sender: The email of the sender.
 :param recipient: The email of the user/recipient.
+:param gm_link: The link to join the GroupMe chat.
 :returns: The email message.
 """
-def set_gm_email_content(recipient):
+def set_gm_email_content(recipient, gm_link):
     msg = EmailMessage()
-    with open("gm-email-template.txt") as emailfile:
+    with open("back-end\\resources\\gm-email-template.txt") as emailfile:
         data = emailfile.read()
-        data = data.replace("gm_link", get_groupme_link())
+        data = data.replace("gm_link", gm_link)
         msg.set_content(data)
     msg['Subject'] = 'Carpool Group Confirmation'
     msg['From'] = config.sender
     msg['To'] = recipient
     return msg
+
+
+"""Sets the content of the carpool cancellation email based on the template.
+
+:param recipient: The email of the user/recipient
+:param gm_id: The id of the GroupMe group chat stored in the database.
+:param mem_id: The membership id of the user in the GroupMe group chat.
+:returns: The email message if successful.
+"""
+# def set_leave_gm_content(recipient, gm_id, mem_id):
+#     # gm_content = {
+#     #     'group_id': gm_id,
+#     #     'membership_id': mem_id
+#     # }
+#     leave_group_url = config.gm_api_groups_url + f"/{gm_id}/members/{mem_id}/remove"
+#     response = requests.post(url=leave_group_url)
+
+#     msg = EmailMessage()
+#     if response.status_code == 200:
+#         with open("back-end\\resources\\leave-gm-email-template.txt") as emailfile:
+#             data = emailfile.read()
+#             msg.set_content(data)
+#         msg['Subject'] = 'Carpool Cancellation Confirmation'
+#         msg['From'] = config.sender
+#         msg['To'] = recipient
+
+#     return msg
 
 
 """Sends a confirmation email to the user.

@@ -1,9 +1,18 @@
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
+import os
 
 # Access Azure key vault
 keyvaulturi = "https://vandytransit-keys.vault.azure.net/"
 kv_client = SecretClient(vault_url = keyvaulturi, credential=DefaultAzureCredential())
+
+# Connection string information for our database
+db_config = {
+    'host': 'carpool-test.mysql.database.azure.com',
+    'user': os.environ['config_user'],
+    'password': os.environ['config_password'],
+    'database': os.environ['config_database']
+}
 
 # Access GroupMe API
 gm_access_token = kv_client.get_secret("gm-api-token").value
