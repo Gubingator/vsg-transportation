@@ -14,13 +14,7 @@ import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
 import { SendCode } from "../services/verify";
->>>>>>> 6665eed9be2943f5c5e470a2ddf759187f1a27df
-=======
->>>>>>> Stashed changes
 
 function ScheduleCarpool(props) {
   const dispatch = useDispatch();
@@ -54,60 +48,7 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-<<<<<<< HEAD
-  const [Schedule, setSchedule] = useState(true);
-
-  const [show, setShow] = useState(false);
-  const [Code, setCode] = useState("");
-  const [Verified, setVerified] = useState(false);
-
-  const handleClose = () => setShow(false);
-  function handleShow() {
-    Promise.resolve().then(() => HandleEmailOnClick());
-    //.then(() => setShow(true));
-    // const result1 = await new Promise((resolve) =>
-    //   HandleEmailOnClick(() => resolve("1"))
-    // );
-    // const result2 = await new Promise((resolve) =>
-    //   setShow(() => resolve("2"))(true)
-    // );
-    // sendEmail();
-  }
-  //function resendClicked() {
-  //sendEmail();
-  //}
-  async function verifyClicked() {
-    //const result = await SendCode(Email, Code);
-    if (Code == "000000") {
-      setVerified(true);
-      setShow(false);
-    } else {
-      setVerified(false);
-      setShow(false);
-    }
-  }
-
-  function HandleScheduleOnClick() {
-    if (Schedule) {
-      setSchedule(false);
-    } else {
-      setSchedule(true);
-    }
-  }
-  function HandleVerify() {
-    if (props.code == this.input.value) {
-      setVerified(true);
-      this.setShow(false);
-    } else {
-      setVerified(false);
-      this.setShow(false);
-    }
-  }
-
-  function HandleEmailOnClick() {
-=======
   function HandleOnClick(e) {
->>>>>>> 6665eed9be2943f5c5e470a2ddf759187f1a27df
     console.log(First);
     console.log(Last);
     console.log(Email);
