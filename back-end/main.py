@@ -1,18 +1,11 @@
+from email.utils import getaddresses
 import mysql.connector
 from mysql.connector import errorcode
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
-
-# Obtain connection string information from the portal
-
-config = {
-    'host': 'carpool-test.mysql.database.azure.com',
-    'user': 'carpooltest',
-    'password': 'Testing123',
-    'database': 'carpools'
-}
+import config, conf_email
 
 student_delimiter = ", "
 
@@ -20,7 +13,7 @@ student_delimiter = ", "
 # Parse the output from the database and turn into a JSON that can
 # be used by the web-application
 #
-# @param carpool the set of carpools from teh database
+# @param carpool the set of carpools from the database
 # @return The list of carpools in the correct format
 def parse_carpool_set_sql(carpool):
     to_return = []
@@ -45,7 +38,7 @@ def parse_carpool_set_sql(carpool):
 # }
 #
 # @param carpool One carpool object from the database
-# @return One carpool in JSON format t
+# @return One carpool in JSON format
 def parse_carpool_sql(carpool):
     # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
     list_students = []
@@ -61,28 +54,10 @@ def parse_carpool_sql(carpool):
     return element
 
 
-# Add a student to a specific carpool
-#
-# @param carpool The carpool to add the student too
-# @param new_student The name of the new_student to add to the list
-# @return The new carpool to be updated in the database
-def add_student(carpool, new_student):
-    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
-    new_carpool = list([])
-
-    # In order to add the student to the carpool object, we need to copy the whole carpool
-    for i in range(len(carpool)):
-        if i == 1:  # if we are at the student list, then add the new student
-            new_carpool.append(carpool[i] + student_delimiter + new_student)
-            continue
-        new_carpool.append(carpool[i])  # Append the other elements
-    return tuple(new_carpool)
-
-
 # Construct connection string
 
 try:
-    conn = mysql.connector.connect(**config)
+    conn = mysql.connector.connect(**config.db_config)
     print("Connection established")
 except mysql.connector.Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -92,54 +67,8 @@ except mysql.connector.Error as err:
     else:
         print(err)
 else:
-    cursor = conn.cursor()
+    cursor = conn.cursor(buffered=True)
 
-# Drop previous table of same name if one exists
-cursor.execute("DROP TABLE IF EXISTS carpools;")
-print("Finished dropping table (if existed).")
-
-# Create table
-cursor.execute(
-    "CREATE TABLE carpools "
-    "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
-    "student_list VARCHAR(255), "
-    "departure VARCHAR(255), "
-    "destination VARCHAR(255) ,"
-    "date_time DATETIME);")
-print("Finished creating table.")
-
-# Insert some data into table
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 1, Student 2", "Hank Circle", "Chik-fil-a", "2022-3-21 4:00"))
-print("Inserted", cursor.rowcount, "row(s) of data.")
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 3, Student 4", "Morgan Circle", "Broadway", "2022-3-21 6:00"))
-
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-    ("Student 5", "EBI Circle", "BNA Airport", "2022-3-22 18:00"))
-
-# Test Read data
-cursor.execute("SELECT * FROM carpools;")
-rows = cursor.fetchall()
-print("Read", cursor.rowcount, "row(s) of data.")
-
-# Print all rows for testing
-for row in rows:
-    print("Data row = (%s, %s, %s, %s)" % (str(row[0]), str(row[1]), str(row[2]), str(row[3])))
-
-print(parse_carpool_set_sql(rows))
-
-# Cleanup
-conn.commit()
 
 # Start the app
 app = Flask(__name__)
@@ -150,7 +79,7 @@ CORS(app, resource={r"/*": {"origins": "*"}})
 # Get all the carpools from the database and send them to the web-app
 #
 # @return The list of carpools in JSON format
-class AccessCarpool(Resource):
+class GetAllDatabaseCarpools(Resource):
     def get(self):
         cursor.execute("SELECT * FROM carpools;")
         rows = cursor.fetchall()
@@ -160,7 +89,7 @@ class AccessCarpool(Resource):
 # Get the new carpool from the web-app and add to the database
 #
 # @return The new to give the carpool object that the database assigned to it.
-class CarpoolPut(Resource):
+class AddCarpoolToDatabase(Resource):
     def post(self):
         # Get the Data from the post requst
         data = request.get_json(silent=True)
@@ -212,7 +141,7 @@ class JoinCarpool(Resource):
         rows = cursor.fetchall()
 
         # Create the new carpool to be sent back to the web-app
-        new_carpool = add_student(rows[0], inst['newStudent'])
+        new_carpool = add_student_to_list(rows[0], inst['newStudent'])
 
         # Update the carpool in the database
         cursor.execute("UPDATE carpools "
@@ -223,11 +152,139 @@ class JoinCarpool(Resource):
         return {'carpool': parse_carpool_sql(new_carpool)}
 
 
+# Send an email to the user with a confirmation code
+class SendVerificationEmail(Resource):
+    def post(self):
+        # Get the data included in the post request
+        data = request.get_json(silent=True)
+        data = str(data).replace("\'", "\"")
+        inst = json.loads(str(data))
+
+        # Send the email to the user with the verification code
+        user_email = inst['email']
+        verification_code = conf_email.get_verification_code()
+        conf_email.set_verify_email_content(verification_code, user_email)
+
+        # Grab the carpool id from the database
+        cursor.execute("SELECT id "
+                       "FROM carpools "
+                       "WHERE email = %s", user_email)
+        rows = cursor.fetchall()
+
+        # Insert the verification code into the database
+        cursor.execute("INSERT INTO passengers "
+                       "(carpool_id, email, code, created_at) "
+                       "VALUES (%s, %s, %s, NOW());",
+                       rows[0], user_email, verification_code)
+        
+        conn.commit()
+
+
+# Add a student to a list of students in a carpool
+#
+# @param carpool The carpool to add the student to
+# @param new_student The name of the new_student to add to the list
+# @return The new carpool to be updated in the database
+def add_student_to_list(carpool, new_student):
+    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
+    new_carpool = list([])
+
+    # In order to add the student to the carpool object, we need to copy the whole carpool
+    for i in range(len(carpool)):
+        if i == 1:  # if we are at the student list, then add the new student
+            new_carpool.append(carpool[i] + student_delimiter + new_student)
+            continue
+        new_carpool.append(carpool[i])  # Append the other elements
+    return tuple(new_carpool)
+
+
+# Sends an email with the GroupMe carpool link
+#
+# @param passenger_id   The id of the user stored in the database
+# @param email_address  The email address of the user
+def send_carpool_email(passenger_id, email_address):
+
+    # Get the carpool id
+    cursor.execute("SELECT carpool_id "
+                   "FROM passengers "
+                   "WHERE passenger_id = %s;",
+                   passenger_id)
+    carpool_id = cursor.fetchone()
+
+    # If the carpool already has a GroupMe chat, then get the link
+    cursor.execute("SELECT groupme_link "
+                   "FROM carpools "
+                   "WHERE id = %s",
+                   carpool_id)
+    gm_link = cursor.fetchone()
+
+    # If the carpool does not have a GroupMe chat,
+    #   then create a new chat and add the link to the database
+    if gm_link == None:
+        gm_link = conf_email.create_groupme_link()
+        cursor.execute("UPDATE carpools "
+                       "SET groupme_link = %s "
+                       "WHERE id = %s",
+                       gm_link, carpool_id)
+    
+    # Send the email
+    email_msg = conf_email.set_gm_email_content(email_address, gm_link)
+    conf_email.send_gm_confirmation_email(email_msg)
+    
+    conn.commit()
+
+
+# Verify that the user-inputted confirmation code matches the one emailed earlier,
+#   and email the GroupMe link.
+#
+# @return A validation message if the code matches and an email was sent, or invalid otherwise.
+class VerifyCodeAndSendGroupLink(Resource):
+    def post(self):
+        # Get the data included in the post request
+        data = request.get_json(silent=True)
+        data = str(data).replace("\'", "\"")
+        inst = json.loads(str(data))
+
+        # Grab the emailed code from the database if it was sent less than 1 hour ago
+        passenger_id = inst['passenger_id']
+        cursor.execute("SELECT email, code "
+                       "FROM passengers "
+                       "WHERE passenger_id = %s"
+                       "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR)",
+                       passenger_id)
+        rows = cursor.fetchall()
+        conn.commit()
+
+        if (rows[1] == inst['code']):
+            send_carpool_email(passenger_id, rows[0])
+            return {'message':'Confirmation code validated, email to join carpool sent'}, 200
+        else:
+            return {'message':'Invalid confirmation code'}, 401
+
+
+# class LeaveCarpool(Resource):
+#     def post(self, passenger_id):
+#         # Get the data included in the post request
+#         data = request.get_json(silent=True)
+#         data = str(data).replace("\'", "\"")
+#         inst = json.loads(str(data))
+
+#         # TODO: Remove passenger from database
+
+#         email_msg = conf_email.set_leave_gm_content() #TODO: params
+#         conf_email.send_gm_confirmation_email(email_msg)
+    
+#         conn.commit()
+
+
 # curl http://localhost:5000/carpools/1 -d "data={'id': 1, 'help':2}" -X POST
 # curl http://localhost:5000/carpools/1 -d "data={\"id\": 1, \"help\":2}" -X POST
-api.add_resource(AccessCarpool, '/')
-api.add_resource(CarpoolPut, '/carpool')
+api.add_resource(GetAllDatabaseCarpools, '/')
+api.add_resource(AddCarpoolToDatabase, '/carpool')
 api.add_resource(JoinCarpool, '/carpool/join/<string:carpool_id>')
+api.add_resource(SendVerificationEmail, '/confirmemail')
+api.add_resource(VerifyCodeAndSendGroupLink, '/confirmemail/verifycode')
+# api.add_resource(LeaveCarpool, '/carpool/leave/<string:passenger_id>')
 
 if __name__ == '__main__':
     # Turn on the app
