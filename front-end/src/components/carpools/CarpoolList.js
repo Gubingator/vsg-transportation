@@ -32,7 +32,16 @@ function CarpoolList(props) {
   }
 
   return (
-    <Container>
+    <Container style={{ paddingTop: "10px" }}>
+      <h1
+        style={{
+          fontFamily: "Montserrat",
+          fontSize: "24pt",
+          fontWeight: "bold",
+        }}
+      >
+        AVAILABLE CARPOOLS
+      </h1>
       {props.carpoolList.map((carpool) => {
         let update = false;
         // get the date string

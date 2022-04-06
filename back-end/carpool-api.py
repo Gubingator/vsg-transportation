@@ -224,7 +224,6 @@ class JoinCarpool(Resource):
         conn.commit()
         return {'carpool': parse_carpool_sql(new_carpool)}
 
-
 # Delete the carpool at the id specified
 #
 # @param carpool_id The id of the carpool to be deleted
