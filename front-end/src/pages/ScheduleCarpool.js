@@ -27,7 +27,6 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState("");
 
   function setMinDate() {
     const current = new window.Date();
