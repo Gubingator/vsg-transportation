@@ -1,3 +1,9 @@
+/* Group Number: 5
+ * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+ * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+ * Homework 03
+ */
+
 /*
  * This file includes all information around handling the carpool data.
  */
@@ -10,7 +16,8 @@ import {
 } from "../store/carpoolsSlice";
 import * as axios from "axios";
 
-const FlaskURL = `http://127.0.0.1:5000/`;
+const FlaskURL2 = 'http://127.0.0.1:5000/'
+const FlaskURL = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
 
 var config = {
   headers: {
@@ -20,7 +27,7 @@ var config = {
 };
 
 const axiosInstance = axios.create({
-  baseURL: `http://127.0.0.1:5000/`,
+  baseURL: FlaskURL,
 });
 
 // Example Data for testing
@@ -64,6 +71,7 @@ const initData = [
 export const GetCarpools = async (dispatch) => {
   try {
     // call our api
+
     const { data } = await axiosInstance.get();
     console.log(data);
 
@@ -84,7 +92,7 @@ export const NewCarpool = async (dispatch, carpool) => {
     // call adding API
 
     axios
-      .post(FlaskURL + "carpool/1", carpool, config)
+      .post(FlaskURL + "carpool", carpool, config)
       .then(function (response) {
         const id2 = response["data"]["id"];
         let test1 = {
@@ -112,7 +120,7 @@ export const DeleteCarpool = async (dispatch, carpool) => {
   try {
     // call delete API
     axios
-      .delete(FlaskURL + "delete/" + carpool["id"])
+      .delete(FlaskURL + "delete" + carpool["id"])
       .then(function (response) {
         dispatch(deleteCarpool(carpool));
       })
@@ -137,7 +145,7 @@ export const UpdateCarpool = async (dispatch, carpool_id, new_student) => {
     const toSend = { newStudent: new_student };
 
     axios
-      .post(FlaskURL + "carpool/join/" + carpool_id, toSend, config)
+      .post(FlaskURL + "carpool/join" + carpool_id, toSend, config)
       .then(function (response) {
         // get the new data
         const new_data = response["data"]["carpool"];
