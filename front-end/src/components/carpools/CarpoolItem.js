@@ -1,3 +1,9 @@
+/* Group Number: 5
+ * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+ * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+ * Homework 03
+ */
+
 import { Col, Row, Card, Button } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 
@@ -18,7 +24,7 @@ function CarpoolItem(props) {
             {4 - props.carpool_ref["students"].length}
           </p>
         </Col>
-        <Col>Leaving from: {props.carpool_ref["location"]}</Col>
+        <Col>Leaving from: {props.carpool_ref["departure"]}</Col>
         <Col>Leaving time: {props.carpool_ref["time"].substring(0, 5)}</Col>
         <Col>
           Destination:
