@@ -1,18 +1,24 @@
+from datetime import datetime
+from distutils.log import debug
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import mysql.connector
+import os
 from mysql.connector import errorcode
-from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
 
-# Obtain connection string information from the portal
+# Connection string information for our database.
+
+print("We started the app")
 
 config = {
     'host': 'carpool-test.mysql.database.azure.com',
-    'user': 'carpooltest',
-    'password': 'Testing123',
-    'database': 'carpools'
+    'user': os.environ['config_user'],
+    'password': os.environ['config_password'],
+    'database': os.environ['config_database']
 }
+
 
 student_delimiter = ", "
 
@@ -79,10 +85,9 @@ def add_student(carpool, new_student):
     return tuple(new_carpool)
 
 
-
-
 # Construct connection string
-
+conn = None
+cursor = None
 try:
     conn = mysql.connector.connect(**config)
     print("Connection established")
@@ -94,59 +99,62 @@ except mysql.connector.Error as err:
     else:
         print(err)
 else:
-    cursor = conn.cursor()
+    cursor = conn.cursor(buffered=True)
 
-# Drop previous table of same name if one exists
-cursor.execute("DROP TABLE IF EXISTS carpools;")
-print("Finished dropping table (if existed).")
+cursor.close()
 
-# Create table
-cursor.execute(
-    "CREATE TABLE carpools "
-    "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
-    "student_list VARCHAR(255), "
-    "departure VARCHAR(255), "
-    "destination VARCHAR(255) ,"
-    "date_time DATETIME);")
-print("Finished creating table.")
-
-# Insert some data into table
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 1, Student 2", "Hank Circle", "Chik-fil-a", "2022-3-21 4:00"))
-print("Inserted", cursor.rowcount, "row(s) of data.")
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-    ("Student 3, Student 4", "Morgan Circle", "Broadway", "2022-3-21 6:00"))
-
-cursor.execute(
-    "INSERT INTO carpools "
-    "(student_list, departure, destination, date_time) "
-    "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-    ("Student 5", "EBI Circle", "BNA Airport", "2022-3-22 18:00"))
-
-# Test Read data
-cursor.execute("SELECT * FROM carpools;")
-rows = cursor.fetchall()
-print("Read", cursor.rowcount, "row(s) of data.")
-
-# Print all rows for testing
-for row in rows:
-    print("Data row = (%s, %s, %s, %s)" % (str(row[0]), str(row[1]), str(row[2]), str(row[3])))
-
-print(parse_carpool_set_sql(rows))
-
-# Cleanup
-conn.commit()
-
-# Start the app
 app = Flask(__name__)
 api = Api(app)
 CORS(app, resource={r"/*": {"origins": "*"}})
+
+class ResetDatabase(Resource):
+    def get(self):
+        with conn.cursor(buffered=True) as cursor:
+            # Drop previous table of same name if one exists
+
+            cursor.execute("DROP TABLE IF EXISTS carpools;")
+            print("Finished dropping table (if existed).")
+
+            # Create table
+            cursor.execute(
+                "CREATE TABLE carpools "
+                "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                "student_list VARCHAR(255), "
+                "departure VARCHAR(255), "
+                "destination VARCHAR(255) ,"
+                "date_time DATETIME);")
+            print("Finished creating table.")
+            conn.commit()
+            cursor.close()
+        return {'confirm': 'True'}
+
+class AddExampleData(Resource):
+    def get(self):
+        with conn.cursor(buffered=True) as cursor:
+
+            # Insert some data into table
+            cursor.execute(
+                "INSERT INTO carpools "
+                "(student_list, departure, destination, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
+                ("Student 1, Student 2", "Hank Circle", "Chik-fil-a", "2022-3-21 4:00"))
+            print("Inserted", cursor.rowcount, "row(s) of data.")
+            cursor.execute(
+                "INSERT INTO carpools "
+                "(student_list, departure, destination, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
+                ("Student 3, Student 4", "Morgan Circle", "Broadway", "2022-3-21 6:00"))
+
+            cursor.execute(
+                "INSERT INTO carpools "
+                "(student_list, departure, destination, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+                ("Student 5", "EBI Circle", "BNA Airport", "2022-3-22 18:00"))
+
+            conn.commit()
+            cursor.close()
+
+        return {'AddedData': 'True'}
 
 
 # Get all the carpools from the database and send them to the web-app
@@ -154,8 +162,11 @@ CORS(app, resource={r"/*": {"origins": "*"}})
 # @return The list of carpools in JSON format
 class AccessCarpool(Resource):
     def get(self):
-        cursor.execute("SELECT * FROM carpools;")
-        rows = cursor.fetchall()
+        rows = None
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute("SELECT * FROM carpools ORDER BY date_time;")
+            rows = cursor.fetchall()
+            cursor.close()
         return {'carpools': parse_carpool_set_sql(rows)}
 
 
@@ -168,6 +179,7 @@ class CarpoolPut(Resource):
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
+        print(inst)
 
         # Format the time, students, and date so that we can add it in the database
         the_time = inst['time'].split(":")
@@ -178,21 +190,24 @@ class CarpoolPut(Resource):
         student_string = student_string[:len(student_string) - 2]
         the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
 
+        rows = None
         # Insert the data into the database
-        cursor.execute(
-            "INSERT INTO carpools "
-            "(student_list, departure, destination, date_time) "
-            "VALUES (%s, %s, %s, STR_TO _DATE(%s, '%Y-%m-%d %H:%i'));",
-            (student_string, inst['departure'], inst['destination'], the_date))
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute(
+                "INSERT INTO carpools "
+                "(student_list, departure, destination, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+                (student_string, inst['departure'], inst['destination'], the_date))
 
-        # Get the last inserted id in the database.
-        # Since the id has the autoincrement property in the table, we need to make sure
-        # the ids on the database and web-app side are consistent
-        cursor.execute("SELECT LAST_INSERT_ID();")
-        rows = cursor.fetchall()
+            # Get the last inserted id in the database.
+            # Since the id has the autoincrement property in the table, we need to make sure
+            # the ids on the database and web-app side are consistent
+            cursor.execute("SELECT LAST_INSERT_ID();")
+            rows = cursor.fetchall()
+            # Commit the data
+            conn.commit()
+            cursor.close()
 
-        # Commit the data
-        conn.commit()
 
         # Return the new id
         return {'id': rows[0][0]}
@@ -210,41 +225,52 @@ class JoinCarpool(Resource):
         inst = json.loads(str(data))
 
         # Grab the specific carpool from the database
-        cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
-        rows = cursor.fetchall()
+        new_carpool = None
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
+            rows = cursor.fetchall()
 
-        # Create the new carpool to be sent back to the web-app
-        new_carpool = add_student(rows[0], inst['newStudent'])
+            # Create the new carpool to be sent back to the web-app
+            new_carpool = add_student(rows[0], inst['newStudent'])
 
-        # Update the carpool in the database
-        cursor.execute("UPDATE carpools "
-                       "SET student_list = %s "
-                       "WHERE id = %s",
-                       (str(new_carpool[1]), carpool_id))
-        conn.commit()
+            # Update the carpool in the database
+            cursor.execute("UPDATE carpools "
+                        "SET student_list = %s "
+                        "WHERE id = %s",
+                        (str(new_carpool[1]), carpool_id))
+            conn.commit()
+            cursor.close()
+        
         return {'carpool': parse_carpool_sql(new_carpool)}
+
 
 # Delete the carpool at the id specified
 #
 # @param carpool_id The id of the carpool to be deleted
 class DeleteCarpool(Resource):
     def delete(self, carpool_id):
-        cursor.execute("DELETE FROM carpools WHERE id = %s",
-                       list(carpool_id))
-        conn.commit()
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute("DELETE FROM carpools WHERE id = %s",
+                        list(carpool_id))
+            conn.commit()
+            cursor.close()
 
-# curl http://localhost:5000/carpools/1 -d "data={'id': 1, 'help':2}" -X POST
-# curl http://localhost:5000/carpools/1 -d "data={\"id\": 1, \"help\":2}" -X POST
+
+class Test(Resource):
+    def get(self):
+        return {'Name': 'Jeff3'}
+
 api.add_resource(AccessCarpool, '/')
 api.add_resource(CarpoolPut, '/carpool')
 api.add_resource(JoinCarpool, '/carpool/join/<string:carpool_id>')
 api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
+api.add_resource(Test, '/test')
+api.add_resource(ResetDatabase, '/reset')
+api.add_resource(AddExampleData, '/example')
+
 
 if __name__ == '__main__':
-    # Turn on the app
     app.run(debug=True)
-
     # Clean up
-    cursor.close()
     conn.close()
-    print("Done.")
+    print("Done")
