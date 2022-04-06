@@ -22,7 +22,7 @@ function Picture(props) {
 
   return (
     <div>
-      <Figure fluid className={classes.fig}>
+      <Figure fluid="true" className={classes.fig}>
         <Figure.Image
           src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
           className="img-fluid"

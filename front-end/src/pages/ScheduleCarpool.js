@@ -1,22 +1,14 @@
 import classes from "./ScheduleCarpool.module.css";
 import { Link } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Picture from "../components/layout/Picture";
-import {
-  Form,
-  Button,
-  Alert,
-  Container,
-  Navbar,
-  NavDropdown,
-  Nav,
-  Overlay,
-  Row,
-  Col,
-} from "react-bootstrap";
+//import SendCode from "";
+
+import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
+import validator from "validator";
 
 function ScheduleCarpool(props) {
   const dispatch = useDispatch();
@@ -29,7 +21,87 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
-  function HandleOnClick() {
+  function setMinDate() {
+    const current = new window.Date();
+    //.toISOString().split('T')[0];
+    var month = current.getMonth() + 1;
+    var strMonth = String(month);
+    if (month < 10) strMonth = "0" + String(month);
+
+    var day = current.getDate();
+    var strDay = String(day);
+    if (day < 10) strDay = "0" + String(day);
+
+    const date = `${current.getFullYear()}-${strMonth}-${strDay}`;
+    console.log(date);
+    document.getElementById("datePickerId").setAttribute("min", date);
+  }
+
+  useEffect(() => {
+    setMinDate();
+  }, []);
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [Schedule, setSchedule] = useState(true);
+
+  const [show, setShow] = useState(false);
+  const [Code, setCode] = useState("");
+  const [Verified, setVerified] = useState(false);
+
+  const handleClose = () => setShow(false);
+  function handleShow() {
+    Promise.resolve().then(() => HandleEmailOnClick());
+    //.then(() => setShow(true));
+    // const result1 = await new Promise((resolve) =>
+    //   HandleEmailOnClick(() => resolve("1"))
+    // );
+    // const result2 = await new Promise((resolve) =>
+    //   setShow(() => resolve("2"))(true)
+    // );
+    // sendEmail();
+  }
+  //function resendClicked() {
+  //sendEmail();
+  //}
+  async function verifyClicked() {
+    //const result = await SendCode(Email, Code);
+    if (Code == "000000") {
+      setVerified(true);
+      setShow(false);
+    } else {
+      setVerified(false);
+      setShow(false);
+    }
+  }
+
+  function HandleScheduleOnClick() {
+    if (Schedule) {
+      setSchedule(false);
+    } else {
+      setSchedule(true);
+    }
+  }
+  function HandleVerify() {
+    if (props.code == this.input.value) {
+      setVerified(true);
+      this.setShow(false);
+    } else {
+      setVerified(false);
+      this.setShow(false);
+    }
+  }
+
+  const validateDate = (value) => {
+    /*checks if date is in the past */
+    if (validator.isAfter(value)) {
+      setErrorMessage("Valid Date");
+    } else {
+      setErrorMessage("Enter Valid Date!");
+    }
+  };
+
+  function HandleEmailOnClick() {
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -54,6 +126,7 @@ function ScheduleCarpool(props) {
     console.log(new_carpool);
 
     NewCarpool(dispatch, new_carpool);
+    return 0;
   }
 
   return (
@@ -62,6 +135,7 @@ function ScheduleCarpool(props) {
       <Container className={classes.instructions}>
         <Row>
           <h1> INSTRUCTIONS </h1>
+          <script>{handleShow()}</script>
         </Row>
         <Row>
           <p style={{ color: "white", fontFamily: "Montserrat" }}>
@@ -74,17 +148,22 @@ function ScheduleCarpool(props) {
       </Container>
 
       <div>
-        <Col className={classes.information}>
-          <label>First Name:</label>
+        <form aria-labelledby="info" className={classes.information}>
+          <label id="info">First Name:</label>
           <input
             className={classes.input}
             type="text"
+            id="info"
+            required
+            value={First}
+            maxlength="45"
+            pattern="([a-zA-Z]+)"
             onChange={(event) => {
               setFirst(event.target.value);
             }}
           />
 
-          <label>Last Name:</label>
+          <label>Last Name (optional):</label>
           <input
             className={classes.input}
             type="text"
@@ -95,51 +174,68 @@ function ScheduleCarpool(props) {
           <label>Vanderbilt Email:</label>
           <input
             className={classes.input}
-            type="text"
+            type="email"
+            required
+            placeholder="Enter a valid Vanderbilt email"
+            pattern=".+vanderbilt.edu"
             onChange={(event) => {
               setEmail(event.target.value);
             }}
           />
-          <label>Date:</label>
+
+          <label htmlFor="datePickerId">Date:</label>
           <input
             className={classes.input}
+            id="datePickerId"
             type="date"
+            required
             onChange={(event) => {
               setDate(event.target.value);
+              validateDate(event.target.value);
             }}
           />
+
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "red",
+            }}
+          >
+            {errorMessage}
+          </span>
+
           <label>Departure Time:</label>
           <input
             className={classes.input}
             type="time"
+            required
             onChange={(event) => {
               setTime(event.target.value);
             }}
           />
 
-          <div className={classes.inputGroup}>
-            <label>Departure Location: </label>
+          <label>Departure Location (choose one or type your own): </label>
+          <input
+            list="departLocations"
+            required
+            onChange={(event) => {
+              setDestination(event.target.value);
+            }}
+          />
 
-            <select
-              className="custom-select"
-              id="inputGroupSelect"
-              onChange={(event) => {
-                setDeparture(event.target.value);
-              }}
-            >
-              <option defaultValue={"Choose..."}>Choose...</option>
-              <option value="Highland">Highland</option>
-              <option value="Kissam/EBI">Kissam/EBI</option>
-              <option value="Zeppos">Zeppos</option>
-              <option value="Commons">Commons</option>
-              <option value="Blair">Blair</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          <datalist id="departLocations">
+            <option value="Highland"></option>
+            <option value="Kissam/EBI"></option>
+            <option value="Zeppos"></option>
+            <option value="Blair"></option>
+            <option value="Commons"></option>
+            <option value="Other"></option>
+          </datalist>
 
           <label>Destination (choose one or type your own): </label>
           <input
             list="locations"
+            required
             onChange={(event) => {
               setDestination(event.target.value);
             }}
@@ -153,19 +249,59 @@ function ScheduleCarpool(props) {
             <option value="Target"></option>
           </datalist>
 
-          <button
-            onClick={() => {
-              console.log(First);
-              console.log(Last);
-              console.log(Departure);
-              console.log(Time);
-              console.log(Destination);
-            }}
-            className={classes.button}
-          >
+          <Button type="submit" onClick={handleShow} className={classes.button}>
             SCHEDULE CARPOOL
-          </button>
-        </Col>
+          </Button>
+
+          <Modal
+            show={show}
+            onHide={handleClose}
+            backdrop="static"
+            keyboard={false}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Email Verification</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>
+                You have been sent a 6 digit verification code to the entered
+                Vanderbilt email address. Please enter the code to continue.
+              </p>
+              {true ? (
+                <Form>
+                  <Form.Group className="mb-3" controlId="formBasicCode">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter code"
+                      onChange={(event) => {
+                        setCode(event.target.value);
+                      }}
+                      required
+                    />
+                  </Form.Group>
+                </Form>
+              ) : (
+                <div></div>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleClose}>
+                Resend
+              </Button>
+              <Button
+                variant="primary"
+                onClick={verifyClicked}
+                style={{ backgroundColor: "green" }}
+              >
+                Verify
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </form>
+        {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
       </div>
     </div>
   );
