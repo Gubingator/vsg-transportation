@@ -1,14 +1,5 @@
 import { useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Button,
-  CloseButton,
-  Dropdown,
-  DropdownButton,
-  Container,
-} from "react-bootstrap";
+import { Row, Container } from "react-bootstrap";
 import DropdownCard from "../components/UI/DropdownCard";
 import classes from "./Vanderbilt.module.css";
 import Picture from "../components/layout/Picture";

@@ -26,7 +26,12 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
+  const [Schedule, setSchedule] = useState(true);
+  const [show, setShow] = useState(false);
+  const [Code, setCode] = useState("");
+  const [Verified, setVerified] = useState(false);
 
+  const handleClose = () => setShow(false);
 
   function setMinDate() {
     const current = new window.Date();
@@ -47,7 +52,50 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-  function HandleOnClick(e) {
+  function handleShow() {
+    Promise.resolve().then(() => HandleEmailOnClick());
+    //.then(() => setShow(true));
+    // const result1 = await new Promise((resolve) =>
+    //   HandleEmailOnClick(() => resolve("1"))
+    // );
+    // const result2 = await new Promise((resolve) =>
+    //   setShow(() => resolve("2"))(true)
+    // );
+    // sendEmail();
+  }
+  //function resendClicked() {
+  //sendEmail();
+  //}
+
+  async function verifyClicked() {
+    //const result = await SendCode(Email, Code);
+    if (Code == "000000") {
+      setVerified(true);
+      setShow(false);
+    } else {
+      setVerified(false);
+      setShow(false);
+    }
+  }
+
+  function HandleScheduleOnClick() {
+    if (Schedule) {
+      setSchedule(false);
+    } else {
+      setSchedule(true);
+    }
+  }
+  function HandleVerify() {
+    if (props.code == this.input.value) {
+      setVerified(true);
+      this.setShow(false);
+    } else {
+      setVerified(false);
+      this.setShow(false);
+    }
+  }
+
+  function HandleEmailOnClick(e) {
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -183,14 +231,20 @@ function ScheduleCarpool(props) {
             <option value="Kroger"></option>
             <option value="Target"></option>
           </datalist>
-
-          <button
+          <Button
+            type="submit"
+            onClick={HandleEmailOnClick}
+            className={classes.button}
+          >
+            SCHEDULE CARPOOL
+          </Button>
+          {/* <button
             type="submit"
             onClick={HandleOnClick}
             className={classes.button}
           >
             Add Carpool Request
-          </button>
+          </button> */}
         </form>
 
         {/* <Modal
