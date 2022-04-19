@@ -78,25 +78,17 @@ def add_student_to_list(carpool, new_student):
 
 # Sends an email with the GroupMe carpool link
 #
-# @param passenger_id   The id of the user stored in the database
+# @param carpool_id   The id of the carpool stored in the database
 # @param email_address  The email address of the user
-def send_carpool_email(passenger_id, email_address):
-
-    # Get the carpool id
-    cursor.execute("SELECT carpool_id "
-                   "FROM passengers "
-                   "WHERE passenger_id = %s;",
-                   passenger_id)
-    carpool_id = cursor.fetchone()
-
-    # If the carpool already has a GroupMe chat, then get the link
+def send_carpool_email(carpool_id, email_address):
+    # Join Carpool: If the carpool already has a GroupMe chat, then get the link
     cursor.execute("SELECT groupme_link "
                    "FROM carpools "
                    "WHERE id = %s",
                    carpool_id)
     gm_link = cursor.fetchone()
 
-    # If the carpool does not have a GroupMe chat,
+    # Schedule Carpool: If the carpool does not have a GroupMe chat,
     #   then create a new chat and add the link to the database
     if gm_link == None:
         gm_link = conf_email.create_groupme_link()
@@ -325,21 +317,37 @@ class VerifyCodeAndSendGroupLink(Resource):
         inst = json.loads(str(data))
 
         # Grab the emailed code from the database if it was sent less than 1 hour ago
-        passenger_id = inst['passenger_id']
+        carpool_id = inst['carpool_id']
+        email = inst['email']
 
         rows = None
         with conn.cursor(buffered=True) as cursor:
-            cursor.execute("SELECT email, code "
+            cursor.execute("SELECT code "
                         "FROM passengers "
-                        "WHERE passenger_id = %s"
+                        "WHERE carpool_id = %s "
+                        "AND email = %s "
                         "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR)",
-                        passenger_id)
+                        carpool_id, email)
             rows = cursor.fetchall()
             conn.commit()
             cursor.close()
 
+        # Check if the inputted code matches the code in the database
         if (rows[1] == inst['code']):
-            send_carpool_email(passenger_id, rows[0])
+            # Update the passenger as verified in the database
+            with conn.cursor(buffered=True) as cursor:
+                cursor.execute("UPDATE passengers "
+                            "SET verified = TRUE"
+                            "WHERE carpool_id = %s "
+                            "AND email = %s ",
+                            carpool_id, email)
+                rows = cursor.fetchall()
+                conn.commit()
+                cursor.close()
+
+            # Send the confirmation email
+            send_carpool_email(carpool_id, rows[0])
+            
             return {'message':'Confirmation code validated, email to join carpool sent'}, 200
         else:
             return {'message':'Invalid confirmation code'}, 401
