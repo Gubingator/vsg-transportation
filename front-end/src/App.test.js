@@ -1,5 +1,12 @@
+/* Group Number: 5
+ * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+ * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+ * Homework 03
+ */
+
 import React from "react";
 import ReactDOM from "react-dom";
+import * as redux from 'react-redux'
 
 import { render, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
@@ -118,7 +125,7 @@ test("Nashville Info", () => {
 
 test("Lyft", () => {
   const store = mockStore();
-  const { getByText, getAllByText } = render(
+  const { getByText, getByLabelText, getAllByText } = render(
     <Provider store={store}>
       {" "}
       <BrowserRouter>
@@ -155,4 +162,38 @@ test("Contact Us", () => {
   fireEvent.click(getByText("ABOUT"));
   fireEvent.click(getByText("CONTACT US"));
   getByText(/Sarah Zhang/);
+});
+
+test("Navigation works", () => {
+    const mockGetCarpools = jest.fn();
+    carpoolServices.GetCarpools = jest.fn(() => {
+      mockGetCarpools;
+    });
+  
+    const spy = jest.spyOn(redux, "useSelector");
+    spy.mockReturnValue([{
+      id: 1,
+      students: ["Student1", "Student2"],
+      departure: "Hank Circle",
+      destination: "Chick-fil-a",
+      year: "2022",
+      month: "04",
+      day: "03",
+      time: "4:00:00",
+    }]);
+  
+    const store = mockStore();
+    const { getByText, getByLabelText } = render(
+      <Provider store={store}>
+        {" "}
+        <BrowserRouter>
+          {" "}
+          <App />
+        </BrowserRouter>{" "}
+      </Provider>
+    );
+  fireEvent.click(getByText("CARPOOL"));
+  fireEvent.click(getByText("JOIN A CARPOOL"));
+
+  getByText("Leaving from: Hank Circle");
 });
