@@ -185,6 +185,9 @@ class GetAllDatabaseCarpools(Resource):
         with conn.cursor(buffered=True) as cursor:
             cursor.execute("SELECT * FROM carpools ORDER BY date_time;")
             rows = cursor.fetchall()
+
+            # TODO: Delete carpools that have already happened
+
             cursor.close()
         return {'carpools': parse_carpool_set_sql(rows)}
 
@@ -347,7 +350,7 @@ class VerifyCodeAndSendGroupLink(Resource):
 
             # Send the confirmation email
             send_carpool_email(carpool_id, rows[0])
-            
+
             return {'message':'Confirmation code validated, email to join carpool sent'}, 200
         else:
             return {'message':'Invalid confirmation code'}, 401
