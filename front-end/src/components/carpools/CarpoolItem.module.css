@@ -26,3 +26,25 @@
   background-color: green;
   border-color: green;
 }
+
+.modal {
+  display: flex;
+  align-items: center;
+  font-family: "Montserrat";
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.joinInfo {
+  background-color: #404040;
+  font-family: "Abel";
+  font-size: 16pt;
+  font-weight: bold;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

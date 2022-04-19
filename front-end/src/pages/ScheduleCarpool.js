@@ -26,6 +26,21 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
+
+  const [FirstNameVerified, setFirstNameVerified] = useState(false);
+  const [EmailVerified, setEmailVerfied] = useState(false);
+  const [DateVerified, setDateVerified] = useState(false);
+  const [TimeVerified, setTimeVerified] = useState(false);
+  const [DepartureVerified, setDepartureVerified] = useState(false);
+  const [DestinationVerified, setDestinationVerified] = useState(false);
+
+  const [FirstMessage, setFirstMessage] = useState(false);
+  const [EmailMessage, setEmailMessage] = useState(false);
+  const [DateMessage, setDateMessage] = useState(false);
+  const [TimeMessage, setTimeMessage] = useState(false);
+  const [DepartureMessage, setDepartureMessage] = useState(false);
+  const [DestinationMessage, setDestinationMessage] = useState(false);
+
   const [Schedule, setSchedule] = useState(true);
   const [show, setShow] = useState(false);
   const [Code, setCode] = useState("");
@@ -53,15 +68,16 @@ function ScheduleCarpool(props) {
   }, []);
 
   function handleShow() {
-    Promise.resolve().then(() => HandleEmailOnClick());
-    //.then(() => setShow(true));
-    // const result1 = await new Promise((resolve) =>
-    //   HandleEmailOnClick(() => resolve("1"))
-    // );
-    // const result2 = await new Promise((resolve) =>
-    //   setShow(() => resolve("2"))(true)
-    // );
-    // sendEmail();
+    if (
+      FirstNameVerified &&
+      EmailVerified &&
+      DateVerified &&
+      TimeVerified &&
+      DepartureVerified &&
+      DestinationVerified
+    ) {
+      setShow(true);
+    }
   }
   //function resendClicked() {
   //sendEmail();
@@ -69,7 +85,7 @@ function ScheduleCarpool(props) {
 
   async function verifyClicked() {
     //const result = await SendCode(Email, Code);
-    if (Code == "000000") {
+    if (Code === "000000") {
       setVerified(true);
       setShow(false);
     } else {
@@ -86,7 +102,7 @@ function ScheduleCarpool(props) {
     }
   }
   function HandleVerify() {
-    if (props.code == this.input.value) {
+    if (props.code === this.input.value) {
       setVerified(true);
       this.setShow(false);
     } else {
@@ -95,7 +111,21 @@ function ScheduleCarpool(props) {
     }
   }
 
+  function inputValid(e) {
+    if (
+      FirstNameVerified &&
+      EmailVerified &&
+      DateVerified &&
+      TimeVerified &&
+      DepartureVerified &&
+      DestinationVerified
+    ) {
+      HandleEmailOnClick(e);
+    }
+  }
+
   function HandleEmailOnClick(e) {
+    e.preventDefault();
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -120,6 +150,7 @@ function ScheduleCarpool(props) {
     console.log(new_carpool);
 
     NewCarpool(dispatch, new_carpool);
+    setShow(true);
 
     console.log(new_carpool);
   }
@@ -153,6 +184,7 @@ function ScheduleCarpool(props) {
             pattern="([a-zA-Z]+)"
             onChange={(event) => {
               setFirst(event.target.value);
+              setFirstNameVerified(true);
             }}
           />
 
@@ -173,6 +205,7 @@ function ScheduleCarpool(props) {
             pattern=".+vanderbilt.edu"
             onChange={(event) => {
               setEmail(event.target.value);
+              setEmailVerfied(true);
             }}
           />
 
@@ -184,6 +217,7 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDate(event.target.value);
+              setDateVerified(true);
             }}
           />
 
@@ -194,6 +228,7 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setTime(event.target.value);
+              setTimeVerified(true);
             }}
           />
 
@@ -203,6 +238,7 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDeparture(event.target.value);
+              setDepartureVerified(true);
             }}
           />
 
@@ -221,6 +257,7 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDestination(event.target.value);
+              setDestinationVerified(true);
             }}
           />
           <datalist id="locations">
@@ -231,23 +268,12 @@ function ScheduleCarpool(props) {
             <option value="Kroger"></option>
             <option value="Target"></option>
           </datalist>
-          <Button
-            type="submit"
-            onClick={HandleEmailOnClick}
-            className={classes.button}
-          >
+          <Button type="submit" onClick={inputValid} className={classes.button}>
             SCHEDULE CARPOOL
           </Button>
-          {/* <button
-            type="submit"
-            onClick={HandleOnClick}
-            className={classes.button}
-          >
-            Add Carpool Request
-          </button> */}
         </form>
 
-        {/* <Modal
+        <Modal
           show={show}
           onHide={handleClose}
           backdrop="static"
@@ -293,9 +319,9 @@ function ScheduleCarpool(props) {
               Verify
             </Button>
           </Modal.Footer>
-        </Modal>*/}
+        </Modal>
       </div>
-      {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
+      {Verified ? <h1>yes</h1> : <h1>no</h1>}
     </div>
   );
 }

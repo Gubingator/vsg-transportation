@@ -5,3 +5,4 @@ mysql-connector-python==8.0.28
 azure-identity==1.8.0
 azure-keyvault-secrets==4.3.0
 requests==2.27.1
+pytest==7.1.1
