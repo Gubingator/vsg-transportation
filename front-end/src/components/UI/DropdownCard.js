@@ -19,7 +19,7 @@ function DropdownCard(props) {
                   lineHeight: "22pt",
                   paddingTop: "0",
                   paddingBottom: "5px",
-                  paddingLeft: "1.5px",
+                  paddingLeft: "0.5px",
                   paddingRight: "0",
                   borderRadius: "50%",
                   borderColor: "black",

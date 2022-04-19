@@ -33,6 +33,14 @@
   align-items: center;
 }
 
+.label {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
 .input {
   width: 300px;
   height: 45px;
@@ -63,4 +71,18 @@
 .button:hover {
   cursor: pointer;
   background-color: green;
+}
+
+.modal {
+  align-items: center;
+  font-family: "Montserrat";
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.joinInfo {
+  background-color: #404040;
+  font-family: "Abel";
+  font-size: 16pt;
+  font-weight: bold;
 }
