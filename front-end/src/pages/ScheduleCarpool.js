@@ -26,12 +26,21 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
+
   const [FirstNameVerified, setFirstNameVerified] = useState(false);
   const [EmailVerified, setEmailVerfied] = useState(false);
   const [DateVerified, setDateVerified] = useState(false);
   const [TimeVerified, setTimeVerified] = useState(false);
   const [DepartureVerified, setDepartureVerified] = useState(false);
   const [DestinationVerified, setDestinationVerified] = useState(false);
+
+  const [FirstMessage, setFirstMessage] = useState(false);
+  const [EmailMessage, setEmailMessage] = useState(false);
+  const [DateMessage, setDateMessage] = useState(false);
+  const [TimeMessage, setTimeMessage] = useState(false);
+  const [DepartureMessage, setDepartureMessage] = useState(false);
+  const [DestinationMessage, setDestinationMessage] = useState(false);
+
   const [Schedule, setSchedule] = useState(true);
   const [show, setShow] = useState(false);
   const [Code, setCode] = useState("");
@@ -69,19 +78,6 @@ function ScheduleCarpool(props) {
     ) {
       setShow(true);
     }
-    // if (Verified) {
-    //   HandleEmailOnClick();
-    // }
-    // Promise.resolve()
-    //   .then(() => HandleEmailOnClick())
-    //   .then(() => setShow(true));
-    // const result1 = await new Promise((resolve) =>
-    //   HandleEmailOnClick(() => resolve("1"))
-    // );
-    // const result2 = await new Promise((resolve) =>
-    //   setShow(() => resolve("2"))(true)
-    // );
-    // sendEmail();
   }
   //function resendClicked() {
   //sendEmail();
@@ -115,7 +111,21 @@ function ScheduleCarpool(props) {
     }
   }
 
-  function HandleEmailOnClick() {
+  function inputValid(e) {
+    if (
+      FirstNameVerified &&
+      EmailVerified &&
+      DateVerified &&
+      TimeVerified &&
+      DepartureVerified &&
+      DestinationVerified
+    ) {
+      HandleEmailOnClick(e);
+    }
+  }
+
+  function HandleEmailOnClick(e) {
+    e.preventDefault();
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -140,6 +150,7 @@ function ScheduleCarpool(props) {
     console.log(new_carpool);
 
     NewCarpool(dispatch, new_carpool);
+    setShow(true);
 
     console.log(new_carpool);
   }
@@ -257,11 +268,7 @@ function ScheduleCarpool(props) {
             <option value="Kroger"></option>
             <option value="Target"></option>
           </datalist>
-          <Button
-            type="submit"
-            onClick={() => setShow(true)}
-            className={classes.button}
-          >
+          <Button type="submit" onClick={inputValid} className={classes.button}>
             SCHEDULE CARPOOL
           </Button>
         </form>
@@ -314,7 +321,7 @@ function ScheduleCarpool(props) {
           </Modal.Footer>
         </Modal>
       </div>
-      {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
+      {Verified ? <h1>yes</h1> : <h1>no</h1>}
     </div>
   );
 }
