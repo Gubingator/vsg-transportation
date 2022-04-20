@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from distutils.log import debug
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import mysql.connector
@@ -7,7 +7,17 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
 import config, conf_email
+import os
+import re
+import pytz
 
+VALID = 1
+INCORRECT_FORMAT = -1
+OUT_OF_RANGE = -2
+
+os.environ['config_user'] = 'carpooltest'
+os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
+os.environ['config_database'] = 'carpools'
 
 print("We started the app")
 
@@ -20,6 +30,7 @@ student_delimiter = ", "
 # @param carpool the set of carpools from the database
 # @return The list of carpools in the correct format
 def parse_carpool_set_sql(carpool):
+    print(carpool)
     to_return = []
     for carpool_1 in carpool:  # Parse each carpool separately and add them to a list
         element = parse_carpool_sql(carpool_1)
@@ -103,6 +114,36 @@ def send_carpool_email(carpool_id, email_address):
     
     conn.commit()
 
+def verify_date_time(time, day, month, year):
+
+    time_regex = re.compile(r'(([0-1][0-9])|(2[0-3])):[0-5][0-9]:00')
+    if not re.search(time_regex, time):
+        return INCORRECT_FORMAT
+    the_time = time.split(":")
+    tz_IN = pytz.timezone('US/Central')
+    now = datetime.now(tz_IN)
+
+    try:
+        d1 = datetime(year, month, day, int(the_time[0]), int(the_time[1])).astimezone(tz_IN)
+    except ValueError:
+        return INCORRECT_FORMAT
+    except:
+        return INCORRECT_FORMAT
+
+    last_time = d1 + timedelta(days=14)
+    if d1 < now or d1 > last_time:
+        return OUT_OF_RANGE
+
+    return VALID
+
+
+def verify_departure(departure):
+    return VALID
+
+
+def verify_destination(destination):
+    return VALID
+
 
 # Construct connection string
 conn = None
@@ -182,7 +223,7 @@ class AddExampleData(Resource):
 class GetAllDatabaseCarpools(Resource):
     def get(self):
         rows = None
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
             cursor.execute("SELECT * FROM carpools ORDER BY date_time;")
             rows = cursor.fetchall()
             cursor.close()
@@ -199,6 +240,21 @@ class AddCarpoolToDatabase(Resource):
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
         print(inst)
+
+        valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
+
+        if valid_data != VALID:  # VALID = 1 and is declared at the top of the file
+            return {'id': valid_data}
+
+        valid_data = verify_departure(inst['departure'])
+
+        if valid_data != VALID:
+            return {'id': valid_data}
+
+        valid_data = verify_destination(inst['destination'])
+
+        if valid_data != VALID:
+            return {'id': valid_data}
 
         # Format the time, students, and date so that we can add it in the database
         the_time = inst['time'].split(":")
@@ -379,6 +435,8 @@ api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
 api.add_resource(Test, '/test')
 api.add_resource(ResetDatabase, '/reset')
 api.add_resource(AddExampleData, '/example')
+api.add_resource(SendVerificationEmail, '/sendVerificationEmail')
+api.add_resource(VerifyCodeAndSendGroupLink, '/verifyCode')
 
 
 if __name__ == '__main__':
