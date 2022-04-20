@@ -15,9 +15,6 @@ VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
 
-os.environ['config_user'] = 'carpooltest'
-os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
-os.environ['config_database'] = 'carpools'
 
 print("We started the app")
 
