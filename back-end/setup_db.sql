@@ -21,7 +21,7 @@ CREATE TABLE passengers (
     name VARCHAR(255), 
     email VARCHAR(255), 
     code VARCHAR(255), 
-    created_at DATETIME, 
+    created_at DATETIME,
     verified INT DEFAULT FALSE,
     CONSTRAINT carpool_fk 
         FOREIGN KEY (carpool_id) 
