@@ -50,10 +50,12 @@ export const SendEmail = async (email) => {
  * @param code The code that the user entered
  * @return 1 If the code is correct, 0 otherwise
  */
-export const SendCode = async (email, code) => {
+export const SendCode = async (email, code, name) => {
   try {
-    const toSend = { 'email': email, 'code': code };
+    const toSend = { 'email': email, 'code': code, 'name': name};
 
+    // True if confirmed
+    // false if rejected
     axios
       .post(FlaskURL + "code/", toSend, config)
       .then(function (response) {
