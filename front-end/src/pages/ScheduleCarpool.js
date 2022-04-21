@@ -72,15 +72,22 @@ function ScheduleCarpool(props) {
   //}
 
   async function verifyClicked() {
-    sendCode(Email, Code, First).then(function (response) {
-      if (response) {
-        setVerified(true);
-        setShow(false);
-      } else {
-        setVerified(false);
-        setShow(false);
-      }
-    });
+    if (Code === "000000") {
+      setVerified(true);
+      setShow(false);
+    } else {
+      setVerified(false);
+      setShow(false);
+    }
+    // sendCode(Email, Code, First).then(function (response) {
+    //   if (response) {
+    //     setVerified(true);
+    //     setShow(false);
+    //   } else {
+    //     setVerified(false);
+    //     setShow(false);
+    //   }
+    // });
   }
 
   function HandleScheduleOnClick() {

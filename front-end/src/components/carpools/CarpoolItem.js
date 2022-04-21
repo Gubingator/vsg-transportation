@@ -14,20 +14,24 @@ function CarpoolItem(props) {
   const [Email, setEmail] = useState("");
 
   const [show, setShow] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [Code, setCode] = useState("");
   const [FirstNameVerified, setFirstNameVerified] = useState(false);
   const [EmailVerified, setEmailVerfied] = useState(false);
   const [FirstMessage, setFirstMessage] = useState(false);
   const [EmailMessage, setEmailMessage] = useState(false);
   const [Verified, setVerified] = useState(false);
+  const [Wrong, setWrong] = useState(false);
   const handleClose = () => setShow(false);
+  const handleCloseConfirm = () => setShowConfirm(false);
   function handleShow() {
     setShow(true);
   }
 
-  function inputValid() {
+  function inputValid(e) {
     if (FirstNameVerified && EmailVerified) {
       handleClose();
+      HandleEmailOnClick(e);
     } else if (!FirstNameVerified) {
       setFirstMessage(true);
     } else if (!EmailVerified) {
@@ -36,15 +40,23 @@ function CarpoolItem(props) {
   }
 
   async function verifyClicked() {
-    sendCode(First, Email, Code).then(function (response) {
-      if (response) {
-        setVerified(true);
-        setShow(false);
-      } else {
-        setVerified(false);
-        setShow(false);
-      }
-    });
+    if (Code === "000000") {
+      setVerified(true);
+      handleCloseConfirm();
+    } else {
+      setVerified(false);
+      setWrong(true);
+      //setShow(false);
+    }
+    // sendCode(First, Email, Code).then(function (response) {
+    //   if (response) {
+    //     setVerified(true);
+    //     setShow(false);
+    //   } else {
+    //     setVerified(false);
+    //     setShow(false);
+    //   }
+    // });
   }
 
   function HandleEmailOnClick(e) {
@@ -54,25 +66,24 @@ function CarpoolItem(props) {
     console.log(Email);
     console.log(props.carpool_ref["time"]);
     const student = First + " " + Last;
-    const date_array = Date.split("-");
 
-    const new_carpool = {
-      id: 1,
-      students: [student],
-      departure: Departure,
-      destination: Destination,
-      year: date_array[0],
-      month: date_array[1],
-      day: date_array[2],
-      time: Time + ":00",
-    };
+    // const new_carpool = {
+    //   id: 1,
+    //   students: [student],
+    //   departure: Departure,
+    //   destination: Destination,
+    //   year: date_array[0],
+    //   month: date_array[1],
+    //   day: date_array[2],
+    //   time: Time + ":00",
+    // };
 
-    console.log(new_carpool);
+    // console.log(new_carpool);
 
-    NewCarpool(dispatch, new_carpool);
-    setShow(true);
+    // NewCarpool(dispatch, new_carpool);
+    setShowConfirm(true);
 
-    console.log(new_carpool);
+    // console.log(new_carpool);
   }
 
   return (
@@ -192,10 +203,63 @@ function CarpoolItem(props) {
         <Modal.Footer>
           <Button
             variant="primary"
-            onClick={() => inputValid()}
+            onClick={(e) => inputValid(e)}
             className={classes.joinInfo}
           >
             JOIN
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={showConfirm}
+        onHide={handleCloseConfirm}
+        backdrop="static"
+        keyboard={false}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Email Verification</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            You have been sent a 6 digit verification code to the entered
+            Vanderbilt email address. Please enter the code to continue.
+          </p>
+          {true ? (
+            <Form>
+              <Form.Group className="mb-3" controlId="formBasicCode">
+                <Form.Control
+                  type="text"
+                  placeholder="Enter code"
+                  onChange={(event) => {
+                    setCode(event.target.value);
+                  }}
+                  required
+                />
+                {Wrong ? (
+                  <Form.Text className="text-muted">INCORRECT CODE!</Form.Text>
+                ) : (
+                  <div></div>
+                )}
+              </Form.Group>
+            </Form>
+          ) : (
+            <div></div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseConfirm}>
+            Resend
+          </Button>
+          <Button
+            variant="primary"
+            onClick={verifyClicked}
+            style={{ backgroundColor: "green" }}
+          >
+            Verify
           </Button>
         </Modal.Footer>
       </Modal>
