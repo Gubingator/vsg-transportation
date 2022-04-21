@@ -14,10 +14,16 @@ import pytz
 VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
+#
+# os.environ['config_user'] = 'carpooltest'
+# os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
+# os.environ['config_database'] = 'carpools'
 
-os.environ['config_user'] = 'carpooltest'
-os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
+os.environ['config_user'] = 'newFeatureTest'
+os.environ['config_password'] = 'testingFeatures1234'
 os.environ['config_database'] = 'carpools'
+
+
 
 print("We started the app")
 
@@ -367,7 +373,8 @@ class SendVerificationEmail(Resource):
 #
 # This is what inst will look like:
 # {
-#    code: :code"
+#    id: carpool_id
+#    code: "code"
 #    name: "Student name",
 #    email: "email@vanderbilt.edu"
 # }
