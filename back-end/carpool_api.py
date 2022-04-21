@@ -15,6 +15,9 @@ VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
 
+os.environ['config_user'] = 'carpooltest'
+os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
+os.environ['config_database'] = 'carpools'
 
 print("We started the app")
 
@@ -228,6 +231,23 @@ class GetAllDatabaseCarpools(Resource):
 
 
 # Get the new carpool from the web-app and add to the database
+# This is what you will receive from the front end (what inst will be):
+# {
+#     id: 3,
+#     departure: "Morgan Circle",
+#     destination: "Something 2",
+#     year: "2022",
+#     month: "04",
+#     day: "01",
+#     time: "2:00:00",
+#     filled_seats: 1,
+#     email: "email@vanderbilt.edu"
+#   },
+#
+# Return this:
+# {
+#     id: new_id
+# }
 #
 # @return The new to give the carpool object that the database assigned to it.
 class AddCarpoolToDatabase(Resource):
@@ -286,6 +306,12 @@ class AddCarpoolToDatabase(Resource):
 
 
 # Add a student to a specific carpool
+#
+# This is what data (or inst) will look like:
+# {
+#    name: "Student name",
+#    email: "email@vanderbilt.edu"
+# }
 #
 # @param carpool_id The id of the carpool to add the student to
 # @return The new carpool to update on the front-end
@@ -360,6 +386,14 @@ class SendVerificationEmail(Resource):
 
 # Verify that the user-inputted confirmation code matches the one emailed earlier,
 #   and email the GroupMe link.
+#
+# This is what inst will look like:
+# {
+#    code: :code"
+#    name: "Student name",
+#    email: "email@vanderbilt.edu"
+# }
+#
 #
 # @return A validation message if the code matches and an email was sent, or invalid otherwise.
 class VerifyCodeAndSendGroupLink(Resource):
