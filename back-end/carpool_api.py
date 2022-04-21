@@ -175,9 +175,37 @@ CORS(app, resource={r"/*": {"origins": "*"}})
 class ResetDatabase(Resource):
     def get(self):
         with conn.cursor(buffered=True) as cursor:
-            with open('setup_db.sql', 'r') as sql_file:
-                cursor.execute(sql_file.read())
-            
+            # with open('setup_db.sql', 'r') as sql_file:
+            #     cursor.execute(sql_file.read(), multi=True)
+
+            cursor.execute("DROP TABLE IF EXISTS passengers; ")
+
+            cursor.execute("DROP TABLE IF EXISTS carpools;")
+
+            conn.commit()
+
+            cursor.execute("CREATE TABLE carpools "
+                           "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                           "departure VARCHAR(255), "
+                           "destination VARCHAR(255), "
+                           "date_time DATETIME, "
+                           "filled_seats INT DEFAULT 0, "
+                           "groupme_link VARCHAR(255) DEFAULT NULL);")
+
+            cursor.execute("CREATE TABLE passengers "
+                           "(passenger_id INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                           "carpool_id INTEGER, "
+                           "name VARCHAR(255), "
+                           "email VARCHAR(255), "
+                           "code VARCHAR(255), "
+                           "created_at DATETIME DEFAULT NOW(), "
+                           "verified INTEGER DEFAULT FALSE, "
+                           "CONSTRAINT carpool_fk "
+                           "FOREIGN KEY (carpool_id) "
+                           "REFERENCES carpools (id) "
+                           "ON UPDATE CASCADE "
+                           "ON DELETE CASCADE);")
+
             print("Reset the database tables.")
 
             conn.commit()
@@ -193,9 +221,23 @@ class AddExampleData(Resource):
         with conn.cursor(buffered=True) as cursor:
 
             # Insert some data into table
-            with open('back-end\\test\\test_setup_db.sql', 'r') as sql_file:
-                cursor.execute(sql_file.read())
-            
+            # with open('back-end\\test\\test_setup_db.sql', 'r') as sql_file:
+            #     cursor.execute(sql_file.read())
+
+            cursor.execute("INSERT INTO carpools "
+                           "(departure, destination, date_time) "
+                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i')); ",
+                           ("Hand Circle", "Chick-fil-a", "2023-3-21 4:00"))
+
+            cursor.execute("INSERT INTO carpools "
+                           "(departure, destination, date_time) "
+                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i')); ",
+                           ("Morgan Circle", "Broadway", "2023-3-21 6:00"))
+
+            cursor.execute("INSERT INTO carpools "
+                           "(departure, destination, date_time, filled_seats) "
+                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i'), %s); ",
+                           ("EBI Circle", "BNA Airport", "2023-3-22 18:00", "1"))
             print("Inserted ", cursor.rowcount, " row(s) of data.")
 
             conn.commit()
@@ -209,9 +251,9 @@ class AddExampleData(Resource):
 #
 # @return The list of carpools in JSON format
 class GetAllUpdatedDatabaseCarpools(Resource):
-    def post(self):
+    def get(self):
         rows = None
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
 
             # Delete carpools from the database that have already occurred
             cursor.execute("DELETE FROM carpools "
@@ -219,7 +261,7 @@ class GetAllUpdatedDatabaseCarpools(Resource):
 
             # Only display verified carpools
             cursor.execute("SELECT * FROM carpools "
-                        "WHERE "
+                        "WHERE filled_seats != 0 "
                         "ORDER BY date_time;")
             rows = cursor.fetchall()
 
@@ -426,6 +468,7 @@ api.add_resource(Test, '/test')
 api.add_resource(ResetDatabase, '/reset')
 api.add_resource(AddExampleData, '/example')
 api.add_resource(VerifyCodeAndSendGroupLink, '/verifyCode')
+api.add_resource(JoinCarpool, '/email')
 
 
 if __name__ == '__main__':
