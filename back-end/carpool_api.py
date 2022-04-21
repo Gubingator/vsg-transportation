@@ -75,14 +75,14 @@ def send_confirmation_code_email(carpool_id, email_address):
         cursor.execute("INSERT INTO passengers "
                     "(carpool_id, email, code) "
                     "VALUES (%s, %s, %s);",
-                    carpool_id, email_address, verification_code)
+                       (carpool_id, email_address, verification_code))
     
         conn.commit()
         cursor.close()
 
     # Send email with the confirmation code
     msg = conf_email.set_verify_email_content(verification_code, email_address)
-    conf_email.send_email(msg)
+    # conf_email.send_email(msg) TODO Uncomment this line
 
 
 # Sends an email with the GroupMe carpool link. If the carpool does not yet have a
@@ -127,7 +127,7 @@ def verify_date_time(time, day, month, year):
     now = datetime.now(tz_IN)
 
     try:
-        d1 = datetime(year, month, day, int(the_time[0]), int(the_time[1])).astimezone(tz_IN)
+        d1 = datetime(int(year), int(month), int(day), int(the_time[0]), int(the_time[1])).astimezone(tz_IN)
     except ValueError:
         return INCORRECT_FORMAT
     except:
@@ -225,14 +225,14 @@ class AddExampleData(Resource):
             #     cursor.execute(sql_file.read())
 
             cursor.execute("INSERT INTO carpools "
-                           "(departure, destination, date_time) "
-                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i')); ",
-                           ("Hand Circle", "Chick-fil-a", "2023-3-21 4:00"))
+                           "(departure, destination, date_time, filled_seats) "
+                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i'), %s); ",
+                           ("Hand Circle", "Chick-fil-a", "2023-3-21 4:00", "2"))
 
             cursor.execute("INSERT INTO carpools "
-                           "(departure, destination, date_time) "
-                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i')); ",
-                           ("Morgan Circle", "Broadway", "2023-3-21 6:00"))
+                           "(departure, destination, date_time, filled_seats) "
+                           "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i'), %s); ",
+                           ("Morgan Circle", "Broadway", "2023-3-21 6:00", "2"))
 
             cursor.execute("INSERT INTO carpools "
                            "(departure, destination, date_time, filled_seats) "
@@ -295,10 +295,15 @@ class AddCarpoolToDatabase(Resource):
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
+
+        print()
+        print("WE DID A POST")
         print(inst)
+
 
         # Check if input data is valid
         valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
+        print("carpool: " + str(valid_data))
 
         if valid_data != VALID:  # VALID = 1 and is declared at the top of the file
             return {'id': valid_data}
@@ -312,7 +317,6 @@ class AddCarpoolToDatabase(Resource):
 
         if valid_data != VALID:
             return {'id': valid_data}
-
 
         rows = None
         # Insert the data into the database
@@ -332,11 +336,11 @@ class AddCarpoolToDatabase(Resource):
             # the ids on the database and web-app side are consistent
             cursor.execute("SELECT LAST_INSERT_ID();")
             rows = cursor.fetchall()
+            print(rows)
             # Commit the data
             conn.commit()
             cursor.close()
-
-        carpool_id = rows['id']
+        carpool_id = rows[0]['LAST_INSERT_ID()']
 
         # Send the email with the confirmation code
         send_confirmation_code_email(carpool_id, inst['email'])

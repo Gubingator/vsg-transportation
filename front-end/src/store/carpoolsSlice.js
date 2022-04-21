@@ -1,3 +1,9 @@
+/* Group Number: 5
+ * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+ * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+ * Homework 03
+ */
+
 import { createSlice, createAction } from "@reduxjs/toolkit";
 
 
@@ -8,7 +14,7 @@ export const stemsSlice = createSlice({
     carpools: [],
   },
   reducers: {
-    // add a new carpool to the store
+    // add a new carpool to the stores
     newCarpool: (state, action) => {
       return { ...state, carpools: [action.payload, ...state.carpools] };
     },
