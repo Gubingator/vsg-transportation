@@ -33,7 +33,8 @@ def parse_carpool_set_sql(carpool):
     print(carpool)
     to_return = []
     for carpool_1 in carpool:  # Parse each carpool separately and add them to a list
-        element = parse_carpool_sql(carpool_1)
+        element = parse_carpool_sql(carpool_1['id'], str(carpool['departure']), str(carpool['destination']),
+                                    carpool['filled_seats'], str(carpool['date_time']))
         to_return.append(element)
     return to_return
 
@@ -41,50 +42,28 @@ def parse_carpool_set_sql(carpool):
 # Take one singular carpool and format it into the correct format
 # that can be used in the web-app. An example of the format is below:
 #
-# {
-#   id: 1,
-#   students: ["Student1" , "Student2"],
-#   departure: "Hank Circle",
-#   destination: "Chick-fil-a",
-#   year: "2022",
-#   month: "04",
-#   day: "03",
-#   time: "4:00:00",
-# }
+# CREATE TABLE carpools (
+#     id INTEGER PRIMARY KEY AUTO_INCREMENT,
+#     departure VARCHAR(255),
+#     destination VARCHAR(255),
+#     date_time DATETIME,
+#     filled_seats INT,
+#     groupme_link VARCHAR(255) DEFAULT NULL
+# );
 #
 # @param carpool One carpool object from the database
 # @return One carpool in JSON format
-def parse_carpool_sql(carpool):
-    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
-    list_students = []
-    for student in str(carpool[1]).split(student_delimiter):  # Create the list of students from the student string
-        list_students.append(student)
-    print(list_students)
-    the_date_time = str(carpool[4]).split(" ")  # Split the date string
+def parse_carpool_sql(carpool_id, departure, destination, filled_seats, date_time):
+    # format: (1, The departure, The destination, filled_seats, 2022-03-21 04:00:00, link)
+
+    the_date_time = date_time.split(" ")  # Split the date string
     the_date = the_date_time[0].split("-")
     # Create the JSON element to send to the web-app
-    element = {'id': carpool[0], 'students': list_students, 'departure': str(carpool[2]),
-               'destination': str(carpool[3]), 'year': the_date[0], 'month': the_date[1],
-               'day': the_date[2], 'time': the_date_time[1]}
+    element = {'id': carpool_id, 'departure': departure,
+               'destination': destination, 'year': the_date[0], 'month': the_date[1],
+               'day': the_date[2], 'time': the_date_time[1], 'filled_seats': filled_seats}
     return element
 
-
-# Add a student to a list of students in a carpool
-#
-# @param carpool The carpool to add the student to
-# @param new_student The name of the new_student to add to the list
-# @return The new carpool to be updated in the database
-def add_student_to_list(carpool, new_student):
-    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
-    new_carpool = list([])
-
-    # In order to add the student to the carpool object, we need to copy the whole carpool
-    for i in range(len(carpool)):
-        if i == 1:  # if we are at the student list, then add the new student
-            new_carpool.append(carpool[i] + student_delimiter + new_student)
-            continue
-        new_carpool.append(carpool[i])  # Append the other elements
-    return tuple(new_carpool)
 
 
 # Sends an email with the GroupMe carpool link
@@ -113,6 +92,7 @@ def send_carpool_email(carpool_id, email_address):
     conf_email.send_gm_confirmation_email(email_msg)
     
     conn.commit()
+
 
 def verify_date_time(time, day, month, year):
 
@@ -167,6 +147,7 @@ app = Flask(__name__)
 api = Api(app)
 CORS(app, resource={r"/*": {"origins": "*"}})
 
+
 class ResetDatabase(Resource):
     def get(self):
         with conn.cursor(buffered=True) as cursor:
@@ -179,14 +160,16 @@ class ResetDatabase(Resource):
             cursor.execute(
                 "CREATE TABLE carpools "
                 "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
-                "student_list VARCHAR(255), "
                 "departure VARCHAR(255), "
                 "destination VARCHAR(255) ,"
-                "date_time DATETIME);")
+                "date_time DATETIME, "
+                "filled_seats INT, "
+                "groupme_link VARCHAR(255) DEFAULT NULL);")
             print("Finished creating table.")
             conn.commit()
             cursor.close()
         return {'confirm': 'True'}
+
 
 class AddExampleData(Resource):
     def get(self):
@@ -275,11 +258,6 @@ class AddCarpoolToDatabase(Resource):
 
         # Format the time, students, and date so that we can add it in the database
         the_time = inst['time'].split(":")
-        the_students = inst['students']
-        student_string = ""
-        for stu in the_students:
-            student_string = student_string + stu + student_delimiter
-        student_string = student_string[:len(student_string) - 2]
         the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
 
         rows = None
@@ -287,9 +265,9 @@ class AddCarpoolToDatabase(Resource):
         with conn.cursor(buffered=True) as cursor:
             cursor.execute(
                 "INSERT INTO carpools "
-                "(student_list, departure, destination, date_time) "
+                "(departure, destination, date_time) "
                 "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-                (student_string, inst['departure'], inst['destination'], the_date))
+                (inst['departure'], inst['destination'], the_date))
 
             # Get the last inserted id in the database.
             # Since the id has the autoincrement property in the table, we need to make sure
