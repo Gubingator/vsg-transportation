@@ -14,16 +14,6 @@ import pytz
 VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
-#
-# os.environ['config_user'] = 'carpooltest'
-# os.environ['config_password'] = 'e[zV4.]TM$p@MaHK'
-# os.environ['config_database'] = 'carpools'
-
-os.environ['config_user'] = 'newFeatureTest'
-os.environ['config_password'] = 'testingFeatures1234'
-os.environ['config_database'] = 'carpools'
-
-
 
 print("We started the app")
 
@@ -39,8 +29,9 @@ def parse_carpool_set_sql(carpool):
     print(carpool)
     to_return = []
     for carpool_1 in carpool:  # Parse each carpool separately and add them to a list
-        element = parse_carpool_sql(carpool_1['id'], str(carpool['departure']), str(carpool['destination']),
-                                    carpool['filled_seats'], str(carpool['date_time']))
+
+        element = parse_carpool_sql(carpool_1['id'], str(carpool_1['departure']), str(carpool_1['destination']),
+                                    carpool_1['filled_seats'], str(carpool_1['date_time']))
         to_return.append(element)
     return to_return
 
@@ -147,8 +138,6 @@ except mysql.connector.Error as err:
 else:
     cursor = conn.cursor(buffered=True)
 
-cursor.close()
-
 app = Flask(__name__)
 api = Api(app)
 CORS(app, resource={r"/*": {"origins": "*"}})
@@ -158,20 +147,33 @@ class ResetDatabase(Resource):
     def get(self):
         with conn.cursor(buffered=True) as cursor:
             # Drop previous table of same name if one exists
-
+            cursor.execute("DROP TABLE IF EXISTS passengers;")
             cursor.execute("DROP TABLE IF EXISTS carpools;")
-            print("Finished dropping table (if existed).")
 
-            # Create table
-            cursor.execute(
-                "CREATE TABLE carpools "
-                "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
-                "departure VARCHAR(255), "
-                "destination VARCHAR(255) ,"
-                "date_time DATETIME, "
-                "filled_seats INT, "
-                "groupme_link VARCHAR(255) DEFAULT NULL);")
-            print("Finished creating table.")
+            conn.commit()
+
+            cursor.execute("CREATE TABLE carpools "
+                           "(id INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                           "departure VARCHAR(255), "
+                           "destination VARCHAR(255), "
+                           "date_time DATETIME, "
+                           "filled_seats INT, "
+                           "groupme_link VARCHAR(255) DEFAULT NULL);")
+
+            cursor.execute("CREATE TABLE passengers ("
+                           "passenger_id INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                           "carpool_id INTEGER, "
+                           "name VARCHAR(255), "
+                           "email VARCHAR(255), "
+                           "code VARCHAR(255), "
+                           "created_at DATETIME, "
+                           "verified INT DEFAULT FALSE, "
+                           "CONSTRAINT carpool_fk "
+                           "FOREIGN KEY (carpool_id) "
+                           "REFERENCES carpools (id) "
+                           "ON UPDATE CASCADE "
+                           "ON DELETE CASCADE);")
+
             conn.commit()
             cursor.close()
         return {'confirm': 'True'}
@@ -310,9 +312,9 @@ class JoinCarpool(Resource):
 
         # Grab the specific carpool from the database
         new_carpool = None
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
             cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
-            rows = cursor.fetchall()
+            new_carpool = cursor.fetchall()
 
 
             # Update the carpool in the database
