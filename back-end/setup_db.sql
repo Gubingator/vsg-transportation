@@ -25,7 +25,7 @@ CREATE TABLE passengers (
     verified INT DEFAULT FALSE,
     CONSTRAINT carpool_fk 
         FOREIGN KEY (carpool_id) 
-        REFERENCES carpool (id) 
+        REFERENCES carpools (id)
         ON UPDATE CASCADE 
         ON DELETE CASCADE
 );
