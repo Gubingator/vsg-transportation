@@ -6,6 +6,7 @@
 import * as axios from "axios";
 
 const FlaskURL = `http://127.0.0.1:5000/`;
+const FlaskURL2 = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
 
 var config = {
   headers: {
@@ -56,14 +57,20 @@ export const SendCode = async (email, code, name) => {
 
     // True if confirmed
     // false if rejected
-    axios
+    let result = await axios
       .post(FlaskURL + "code/", toSend, config)
       .then(function (response) {
-        return response["data"]["confirm"];
+        if (response['data']['confirm'] === 1){
+          return true;
+        } else {
+          return false;
+        }
       })
       .catch(function (error) {
         console.log(error);
       });
+
+      return result;
   } catch {
     console.log("Send Code Error");
   }

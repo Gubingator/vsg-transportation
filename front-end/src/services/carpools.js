@@ -34,33 +34,33 @@ const axiosInstance = axios.create({
 const initData = [
   {
     id: 1,
-    students: ["Student1", "Student2"],
     departure: "Hank Circle",
     destination: "Chick-fil-a",
     year: "2022",
     month: "04",
     day: "03",
     time: "4:00:00",
+    filled_seats: 2,
   },
   {
     id: 2,
-    students: ["Student3", "Student4"],
     departure: "EBI Circle",
     destination: "Something",
     year: "2022",
     month: "04",
     day: "02",
     time: "3:00:00",
+    filled_seats: 2,
   },
   {
     id: 3,
-    students: ["Student3", "Student4"],
     departure: "Morgan Circle",
     destination: "Something 2",
     year: "2022",
     month: "04",
     day: "01",
     time: "2:00:00",
+    filled_seats: 2,
   },
 ];
 
@@ -84,29 +84,42 @@ export const GetCarpools = async (dispatch) => {
 /*
  * Add a New Carpool to the database
  *
- * @param dispatch  The dispact React Redux object
+ * @param dispatch  The dispach React Redux object
  * @ param carpool  The new Carpool object to be added
  */
-export const NewCarpool = async (dispatch, carpool) => {
+export const NewCarpool = async (dispatch, carpool, email) => {
   try {
     // call adding API
 
-    axios
-      .post(FlaskURL + "carpool", carpool, config)
+    let data = { ...carpool, 'email': email};
+
+    let result = await axios
+      .post(FlaskURL + "carpool", data, config)
       .then(function (response) {
+        
+        // TODO: 
         const id2 = response["data"]["id"];
+        if (id2 < 0){
+          return false;
+        }
         let test1 = {
           ...carpool,
+          filled_seats: 1,
         };
         const new_obj = { id: id2 };
         const new_data = Object.assign(test1, new_obj);
         dispatch(newCarpool(new_data));
+        return true;
       })
       .catch(function (error) {
         console.log(error);
+        return false;
       });
+
+      return result;
   } catch {
     console.log("New Carpool Error");
+    return false;
   }
 };
 
@@ -142,7 +155,7 @@ export const DeleteCarpool = async (dispatch, carpool) => {
 export const UpdateCarpool = async (dispatch, carpool_id, new_student) => {
   try {
     // call api
-    const toSend = { newStudent: new_student };
+    const toSend = { name: new_student['name'], email: new_student['email']};
 
     axios
       .post(FlaskURL + "carpool/join" + carpool_id, toSend, config)
