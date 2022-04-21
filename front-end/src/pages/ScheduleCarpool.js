@@ -67,31 +67,20 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-  function handleShow() {
-    if (
-      FirstNameVerified &&
-      EmailVerified &&
-      DateVerified &&
-      TimeVerified &&
-      DepartureVerified &&
-      DestinationVerified
-    ) {
-      setShow(true);
-    }
-  }
   //function resendClicked() {
   //sendEmail();
   //}
 
   async function verifyClicked() {
-    //const result = await SendCode(Email, Code);
-    if (Code === "000000") {
-      setVerified(true);
-      setShow(false);
-    } else {
-      setVerified(false);
-      setShow(false);
-    }
+    sendCode(Email, Code, First).then(function (response) {
+      if (response) {
+        setVerified(true);
+        setShow(false);
+      } else {
+        setVerified(false);
+        setShow(false);
+      }
+    });
   }
 
   function HandleScheduleOnClick() {

@@ -12,6 +12,7 @@ function CarpoolItem(props) {
   const [First, setFirst] = useState("");
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
+
   const [show, setShow] = useState(false);
   const [Code, setCode] = useState("");
   const [FirstNameVerified, setFirstNameVerified] = useState(false);
@@ -35,14 +36,43 @@ function CarpoolItem(props) {
   }
 
   async function verifyClicked() {
-    //const result = await SendCode(Email, Code);
-    if (Code === "000000") {
-      setVerified(true);
-      setShow(false);
-    } else {
-      setVerified(false);
-      setShow(false);
-    }
+    sendCode(First, Email, Code).then(function (response) {
+      if (response) {
+        setVerified(true);
+        setShow(false);
+      } else {
+        setVerified(false);
+        setShow(false);
+      }
+    });
+  }
+
+  function HandleEmailOnClick(e) {
+    e.preventDefault();
+    console.log(First);
+    console.log(Last);
+    console.log(Email);
+    console.log(props.carpool_ref["time"]);
+    const student = First + " " + Last;
+    const date_array = Date.split("-");
+
+    const new_carpool = {
+      id: 1,
+      students: [student],
+      departure: Departure,
+      destination: Destination,
+      year: date_array[0],
+      month: date_array[1],
+      day: date_array[2],
+      time: Time + ":00",
+    };
+
+    console.log(new_carpool);
+
+    NewCarpool(dispatch, new_carpool);
+    setShow(true);
+
+    console.log(new_carpool);
   }
 
   return (
@@ -139,7 +169,7 @@ function CarpoolItem(props) {
                   className={classes.input}
                   type="email"
                   required
-                  placeholder="Enter valid Vanderbilt email"
+                  //placeholder="Enter valid Vanderbilt email"
                   pattern=".+vanderbilt.edu"
                   onChange={(event) => {
                     setEmail(event.target.value);
@@ -162,8 +192,8 @@ function CarpoolItem(props) {
         <Modal.Footer>
           <Button
             variant="primary"
-            onClick={inputValid}
-            classname={classes.joinInfo}
+            onClick={() => inputValid()}
+            className={classes.joinInfo}
           >
             JOIN
           </Button>
