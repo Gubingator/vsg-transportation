@@ -184,21 +184,21 @@ class AddExampleData(Resource):
             # Insert some data into table
             cursor.execute(
                 "INSERT INTO carpools "
-                "(student_list, departure, destination, date_time) "
-                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-                ("Student 1, Student 2", "Hank Circle", "Chik-fil-a", "2022-3-21 4:00"))
+                "(departure, destination, filled_seats, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+                ("Hank Circle", "Chik-fil-a", "1", "2022-3-21 4:00"))
             print("Inserted", cursor.rowcount, "row(s) of data.")
             cursor.execute(
                 "INSERT INTO carpools "
-                "(student_list, departure, destination, date_time) "
-                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %h:%i'));",
-                ("Student 3, Student 4", "Morgan Circle", "Broadway", "2022-3-21 6:00"))
+                "(departure, destination, filled_seats, date_time) "
+                "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
+                ("Morgan Circle", "Broadway", "1", "2022-3-21 6:00"))
 
             cursor.execute(
                 "INSERT INTO carpools "
-                "(student_list, departure, destination, date_time) "
+                "(departure, destination, filled_seats, date_time) "
                 "VALUES (%s, %s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-                ("Student 5", "EBI Circle", "BNA Airport", "2022-3-22 18:00"))
+                ("EBI Circle", "BNA Airport", "1", "2022-3-22 18:00"))
 
             conn.commit()
             cursor.close()
@@ -237,6 +237,7 @@ class GetAllDatabaseCarpools(Resource):
 # {
 #     id: new_id
 # }
+# TODO: This function will send the email to the user with the code, just for schedule
 #
 # @return The new to give the carpool object that the database assigned to it.
 class AddCarpoolToDatabase(Resource):
@@ -289,10 +290,11 @@ class AddCarpoolToDatabase(Resource):
         return {'id': rows[0][0]}
 
 
-# Add a student to a specific carpool
+# TODO: Send the email to the student with the code, but just for join.
 #
 # This is what data (or inst) will look like:
 # {
+#    carpool_id: id,
 #    name: "Student name",
 #    email: "email@vanderbilt.edu"
 # }
@@ -312,8 +314,6 @@ class JoinCarpool(Resource):
             cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
             rows = cursor.fetchall()
 
-            # Create the new carpool to be sent back to the web-app
-            new_carpool = add_student_to_list(rows[0], inst['newStudent'])
 
             # Update the carpool in the database
             cursor.execute("UPDATE carpools "
@@ -338,7 +338,7 @@ class DeleteCarpool(Resource):
             cursor.close()
 
 
-# Send an email to the user with a confirmation code
+# TODO: Make a helper function to Send an email to the user with a confirmation code
 class SendVerificationEmail(Resource):
     def post(self):
         # Get the data included in the post request
@@ -373,13 +373,13 @@ class SendVerificationEmail(Resource):
 #
 # This is what inst will look like:
 # {
-#    id: carpool_id
+#    carpool_id: id
 #    code: "code"
 #    name: "Student name",
 #    email: "email@vanderbilt.edu"
 # }
 #
-#
+# TODO: Return {'confirm': 1} if it worked otherwise {'confirm': 0} if it didn't work
 # @return A validation message if the code matches and an email was sent, or invalid otherwise.
 class VerifyCodeAndSendGroupLink(Resource):
     def post(self):
