@@ -111,11 +111,11 @@ def set_gm_email_content(recipient, gm_link):
 #     return msg
 
 
-"""Sends a confirmation email to the user.
+"""Sends an email to the user.
 
 :param msg: The email message.
 """
-def send_gm_confirmation_email(msg):
+def send_email(msg):
     with smtplib.SMTP('smtp.gmail.com', 587) as smtpObj:
         smtpObj.starttls()
         smtpObj.login(config.sender, config.sender_password)
