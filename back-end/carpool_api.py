@@ -318,7 +318,6 @@ class Test(Resource):
 
 api.add_resource(GetAllUpdatedDatabaseCarpools, '/')
 api.add_resource(AddCarpoolToDatabase, '/carpool')
-api.add_resource(JoinCarpool, '/carpool/join/<string:carpool_id>')
 api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
 api.add_resource(Test, '/test')
 api.add_resource(ResetDatabase, '/reset')
