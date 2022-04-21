@@ -36,10 +36,22 @@
 }
 
 .joinInfo {
+  height: 50px;
   background-color: #404040;
+  border-color: #404040;
   font-family: "Abel";
   font-size: 16pt;
   font-weight: bold;
+}
+
+.joinInfo:hover {
+  background-color: green;
+  border-color: green;
+  cursor: pointer;
+}
+
+.joinInfo::after {
+  background-color: green;
 }
 
 .label {

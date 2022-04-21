@@ -6,7 +6,7 @@ function CarpoolList(props) {
   let CurDate = "";
 
   /* Returns the string day of the week for a specific day.
-   * 
+   *
    * @param date_string The string date in the form of year-month-dayT00:00:00
    * @return the String full day of the week
    */
@@ -45,9 +45,16 @@ function CarpoolList(props) {
       {props.carpoolList.map((carpool) => {
         let update = false;
         // get the date string
-        const date_string = carpool["year"] + "-" + carpool["month"] + "-" + carpool["day"] + "T00:00:00";
+        const date_string =
+          carpool["year"] +
+          "-" +
+          carpool["month"] +
+          "-" +
+          carpool["day"] +
+          "T00:00:00";
         const date = dayOfTheWeek(date_string); // get the day of the week
-        if (date_string !== CurDate) { // if we are at a new date, then we will create a DateBlock
+        if (date_string !== CurDate) {
+          // if we are at a new date, then we will create a DateBlock
           CurDate = date_string;
           update = true;
         }

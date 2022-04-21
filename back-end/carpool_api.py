@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from distutils.log import debug
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import mysql.connector
@@ -7,7 +7,13 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
 import config, conf_email
+import os
+import re
+import pytz
 
+VALID = 1
+INCORRECT_FORMAT = -1
+OUT_OF_RANGE = -2
 
 print("We started the app")
 
@@ -20,9 +26,12 @@ student_delimiter = ", "
 # @param carpool the set of carpools from the database
 # @return The list of carpools in the correct format
 def parse_carpool_set_sql(carpool):
+    print(carpool)
     to_return = []
     for carpool_1 in carpool:  # Parse each carpool separately and add them to a list
-        element = parse_carpool_sql(carpool_1)
+
+        element = parse_carpool_sql(carpool_1['id'], str(carpool_1['departure']), str(carpool_1['destination']),
+                                    carpool_1['filled_seats'], str(carpool_1['date_time']))
         to_return.append(element)
     return to_return
 
@@ -30,31 +39,26 @@ def parse_carpool_set_sql(carpool):
 # Take one singular carpool and format it into the correct format
 # that can be used in the web-app. An example of the format is below:
 #
-# {
-#   id: 1,
-#   students: ["Student1" , "Student2"],
-#   departure: "Hank Circle",
-#   destination: "Chick-fil-a",
-#   year: "2022",
-#   month: "04",
-#   day: "03",
-#   time: "4:00:00",
-# }
+# CREATE TABLE carpools (
+#     id INTEGER PRIMARY KEY AUTO_INCREMENT,
+#     departure VARCHAR(255),
+#     destination VARCHAR(255),
+#     date_time DATETIME,
+#     filled_seats INT,
+#     groupme_link VARCHAR(255) DEFAULT NULL
+# );
 #
 # @param carpool One carpool object from the database
 # @return One carpool in JSON format
-def parse_carpool_sql(carpool):
-    # format: (1, This is a list of students, The departure, The destination, 2022-03-21 04:00:00)
-    list_students = []
-    for student in str(carpool[1]).split(student_delimiter):  # Create the list of students from the student string
-        list_students.append(student)
-    print(list_students)
-    the_date_time = str(carpool[4]).split(" ")  # Split the date string
+def parse_carpool_sql(carpool_id, departure, destination, filled_seats, date_time):
+    # format: (1, The departure, The destination, filled_seats, 2022-03-21 04:00:00, link)
+
+    the_date_time = date_time.split(" ")  # Split the date string
     the_date = the_date_time[0].split("-")
     # Create the JSON element to send to the web-app
-    element = {'id': carpool[0], 'students': list_students, 'departure': str(carpool[2]),
-               'destination': str(carpool[3]), 'year': the_date[0], 'month': the_date[1],
-               'day': the_date[2], 'time': the_date_time[1]}
+    element = {'id': carpool_id, 'departure': departure,
+               'destination': destination, 'year': the_date[0], 'month': the_date[1],
+               'day': the_date[2], 'time': the_date_time[1], 'filled_seats': filled_seats}
     return element
 
 
@@ -113,6 +117,37 @@ def send_carpool_email(carpool_id, email_address):
     conf_email.send_email(email_msg)
 
 
+def verify_date_time(time, day, month, year):
+
+    time_regex = re.compile(r'(([0-1][0-9])|(2[0-3])):[0-5][0-9]:00')
+    if not re.search(time_regex, time):
+        return INCORRECT_FORMAT
+    the_time = time.split(":")
+    tz_IN = pytz.timezone('US/Central')
+    now = datetime.now(tz_IN)
+
+    try:
+        d1 = datetime(year, month, day, int(the_time[0]), int(the_time[1])).astimezone(tz_IN)
+    except ValueError:
+        return INCORRECT_FORMAT
+    except:
+        return INCORRECT_FORMAT
+
+    last_time = d1 + timedelta(days=14)
+    if d1 < now or d1 > last_time:
+        return OUT_OF_RANGE
+
+    return VALID
+
+
+def verify_departure(departure):
+    return VALID
+
+
+def verify_destination(destination):
+    return VALID
+
+
 # Construct connection string
 conn = None
 cursor = None
@@ -128,8 +163,6 @@ except mysql.connector.Error as err:
         print(err)
 else:
     cursor = conn.cursor(buffered=True)
-
-cursor.close()
 
 app = Flask(__name__)
 api = Api(app)
@@ -195,6 +228,24 @@ class GetAllUpdatedDatabaseCarpools(Resource):
 
 
 # Get the new carpool from the web-app and add to the database
+# This is what you will receive from the front end (what inst will be):
+# {
+#     id: 3,
+#     departure: "Morgan Circle",
+#     destination: "Something 2",
+#     year: "2022",
+#     month: "04",
+#     day: "01",
+#     time: "2:00:00",
+#     filled_seats: 1,
+#     email: "email@vanderbilt.edu"
+#   },
+#
+# Return this:
+# {
+#     id: new_id
+# }
+# TODO: This function will send the email to the user with the code, just for schedule
 #
 # @return The new to give the carpool object that the database assigned to it.
 class AddCarpoolToDatabase(Resource):
@@ -204,6 +255,26 @@ class AddCarpoolToDatabase(Resource):
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
         print(inst)
+
+        valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
+
+        if valid_data != VALID:  # VALID = 1 and is declared at the top of the file
+            return {'id': valid_data}
+
+        valid_data = verify_departure(inst['departure'])
+
+        if valid_data != VALID:
+            return {'id': valid_data}
+
+        valid_data = verify_destination(inst['destination'])
+
+        if valid_data != VALID:
+            return {'id': valid_data}
+
+        # Format the time, students, and date so that we can add it in the database
+        # TODO: Fix
+        the_time = inst['time'].split(":")
+        the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
 
         rows = None
         # Insert the data into the database
@@ -231,6 +302,42 @@ class AddCarpoolToDatabase(Resource):
         return {'id': rows[0][0]}
 
 
+# TODO: Send the email to the student with the code, but just for join.
+#
+# This is what data (or inst) will look like:
+# {
+#    carpool_id: id,
+#    name: "Student name",
+#    email: "email@vanderbilt.edu"
+# }
+#
+# @param carpool_id The id of the carpool to add the student to
+# @return The new carpool to update on the front-end
+class JoinCarpool(Resource):
+    def post(self, carpool_id):
+        # Get the data included in the post request
+        data = request.get_json(silent=True)
+        data = str(data).replace("\'", "\"")
+        inst = json.loads(str(data))
+
+        # Grab the specific carpool from the database
+        new_carpool = None
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
+            cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
+            new_carpool = cursor.fetchall()
+
+
+            # Update the carpool in the database
+            cursor.execute("UPDATE carpools "
+                        "SET student_list = %s "
+                        "WHERE id = %s",
+                        (str(new_carpool[1]), carpool_id))
+            conn.commit()
+            cursor.close()
+        
+        return {'carpool': parse_carpool_sql(new_carpool)}
+
+
 # Delete the carpool at the id specified
 #
 # @param carpool_id The id of the carpool to be deleted
@@ -246,6 +353,15 @@ class DeleteCarpool(Resource):
 # Verify that the user-inputted confirmation code matches the one emailed earlier,
 #   and email the GroupMe link.
 #
+# This is what inst will look like:
+# {
+#    carpool_id: id
+#    code: "code"
+#    name: "Student name",
+#    email: "email@vanderbilt.edu"
+# }
+#
+# TODO: Return {'confirm': 1} if it worked otherwise {'confirm': 0} if it didn't work
 # @return A validation message if the code matches and an email was sent, or invalid otherwise.
 class VerifyCodeAndSendGroupLink(Resource):
     def post(self):
@@ -322,6 +438,8 @@ api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
 api.add_resource(Test, '/test')
 api.add_resource(ResetDatabase, '/reset')
 api.add_resource(AddExampleData, '/example')
+api.add_resource(SendVerificationEmail, '/sendVerificationEmail')
+api.add_resource(VerifyCodeAndSendGroupLink, '/verifyCode')
 
 
 if __name__ == '__main__':
