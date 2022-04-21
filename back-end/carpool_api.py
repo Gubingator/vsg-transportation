@@ -7,7 +7,6 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
 import config, conf_email
-import os
 import re
 import pytz
 
@@ -44,7 +43,7 @@ def parse_carpool_set_sql(carpool):
 #     departure VARCHAR(255),
 #     destination VARCHAR(255),
 #     date_time DATETIME,
-#     filled_seats INT,
+#     filled_seats INTEGER DEFAULT 0,
 #     groupme_link VARCHAR(255) DEFAULT NULL
 # );
 #
@@ -117,6 +116,7 @@ def send_carpool_email(carpool_id, email_address):
     conf_email.send_email(email_msg)
 
 
+# Verifies that the datetime is valid
 def verify_date_time(time, day, month, year):
 
     time_regex = re.compile(r'(([0-1][0-9])|(2[0-3])):[0-5][0-9]:00')
@@ -245,7 +245,6 @@ class GetAllUpdatedDatabaseCarpools(Resource):
 # {
 #     id: new_id
 # }
-# TODO: This function will send the email to the user with the code, just for schedule
 #
 # @return The new to give the carpool object that the database assigned to it.
 class AddCarpoolToDatabase(Resource):
@@ -256,6 +255,7 @@ class AddCarpoolToDatabase(Resource):
         inst = json.loads(str(data))
         print(inst)
 
+        # Check if input data is valid
         valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
 
         if valid_data != VALID:  # VALID = 1 and is declared at the top of the file
@@ -271,16 +271,13 @@ class AddCarpoolToDatabase(Resource):
         if valid_data != VALID:
             return {'id': valid_data}
 
-        # Format the time, students, and date so that we can add it in the database
-        # TODO: Fix
-        the_time = inst['time'].split(":")
-        the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
 
         rows = None
         # Insert the data into the database
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
             # Format the date so that we can add it in the database
-            the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + inst['time']
+            the_time = inst['time'].split(":")
+            the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
             
             cursor.execute(
                 "INSERT INTO carpools "
@@ -297,12 +294,16 @@ class AddCarpoolToDatabase(Resource):
             conn.commit()
             cursor.close()
 
+        carpool_id = rows['id']
+
+        # Send the email with the confirmation code
+        send_confirmation_code_email(carpool_id, inst['email'])
 
         # Return the new id
-        return {'id': rows[0][0]}
+        return {'id': carpool_id}
 
 
-# TODO: Send the email to the student with the code, but just for join.
+# Sends an email with the confirmation code.
 #
 # This is what data (or inst) will look like:
 # {
@@ -311,31 +312,17 @@ class AddCarpoolToDatabase(Resource):
 #    email: "email@vanderbilt.edu"
 # }
 #
-# @param carpool_id The id of the carpool to add the student to
 # @return The new carpool to update on the front-end
 class JoinCarpool(Resource):
-    def post(self, carpool_id):
+    def get(self):
         # Get the data included in the post request
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
 
-        # Grab the specific carpool from the database
-        new_carpool = None
-        with conn.cursor(buffered=True, dictionary=True) as cursor:
-            cursor.execute("SELECT * FROM carpools WHERE id = %s;", list(carpool_id))
-            new_carpool = cursor.fetchall()
-
-
-            # Update the carpool in the database
-            cursor.execute("UPDATE carpools "
-                        "SET student_list = %s "
-                        "WHERE id = %s",
-                        (str(new_carpool[1]), carpool_id))
-            conn.commit()
-            cursor.close()
+        send_confirmation_code_email(inst['carpool_id'], inst['email'])
         
-        return {'carpool': parse_carpool_sql(new_carpool)}
+        return {'Confirm': 'True'}
 
 
 # Delete the carpool at the id specified
@@ -438,7 +425,6 @@ api.add_resource(DeleteCarpool, '/carpool/delete/<string:carpool_id>')
 api.add_resource(Test, '/test')
 api.add_resource(ResetDatabase, '/reset')
 api.add_resource(AddExampleData, '/example')
-api.add_resource(SendVerificationEmail, '/sendVerificationEmail')
 api.add_resource(VerifyCodeAndSendGroupLink, '/verifyCode')
 
 
