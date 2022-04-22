@@ -30,8 +30,9 @@ export const SendEmail = async (email, carpool_id, name) => {
   try {
     const toSend = { 'email': email, 'carpool_id': carpool_id, 'name': name};
 
+    console.log(toSend);
     axios
-      .post(FlaskURL + "email/", toSend, config)
+      .post(FlaskURL + "email", toSend, config)
       .then(function (response) {
         return response["data"]["confirm"];
       })
@@ -73,5 +74,6 @@ export const SendCode = async (email, code, name, carpool_id) => {
       return result;
   } catch {
     console.log("Send Code Error");
+    return false;
   }
 };
