@@ -105,8 +105,8 @@ def send_carpool_email(carpool_id, email_address):
             gm_link = conf_email.create_groupme_link()
             cursor.execute("UPDATE carpools "
                         "SET groupme_link = %s "
-                        "WHERE id = %s",
-                        gm_link, carpool_id)
+                        "WHERE id = %s;",
+                           (gm_link, carpool_id))
         
         conn.commit()
         cursor.close()
@@ -238,7 +238,11 @@ class AddExampleData(Resource):
                            "(departure, destination, date_time, filled_seats) "
                            "VALUES ( %s, %s, STR_TO_DATE( %s, '%Y-%m-%d %H:%i'), %s); ",
                            ("EBI Circle", "BNA Airport", "2023-3-22 18:00", "1"))
-            print("Inserted ", cursor.rowcount, " row(s) of data.")
+
+            cursor.execute("INSERT INTO passengers "
+                           "(carpool_id, email, code, created_at) "
+                           "VALUES (%s, %s, %s, NOW()); ",
+                           ("1", "example@vanderbilt.edu", "123456"))
 
             conn.commit()
             cursor.close()
@@ -258,6 +262,7 @@ class GetAllUpdatedDatabaseCarpools(Resource):
             # Delete carpools from the database that have already occurred
             cursor.execute("DELETE FROM carpools "
                 "WHERE date_time < NOW();")
+
 
             # Only display verified carpools
             cursor.execute("SELECT * FROM carpools "
@@ -295,11 +300,6 @@ class AddCarpoolToDatabase(Resource):
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
-
-        print()
-        print("WE DID A POST")
-        print(inst)
-
 
         # Check if input data is valid
         valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
@@ -402,48 +402,48 @@ class VerifyCodeAndSendGroupLink(Resource):
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
+        print(inst)
 
         carpool_id = inst['carpool_id']
         email = inst['email']
 
         rows = None
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
             # Grab the emailed code from the database if it was sent less than 1 hour ago
             cursor.execute("SELECT code "
                         "FROM passengers "
                         "WHERE carpool_id = %s "
                         "AND email = %s "
-                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR)",
-                        carpool_id, email)
+                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR);",
+                           (carpool_id, email))
             rows = cursor.fetchall()
             conn.commit()
-            cursor.close()
+            print(rows)
 
-        # Check if the inputted code matches the code in the database
-        if (rows[1] == inst['code']):
-            with conn.cursor(buffered=True) as cursor:
+            # Check if the inputted code matches the code in the database
+            if rows[0]['code'] == inst['code']:
                 # Update the passenger as verified in the database
                 cursor.execute("UPDATE passengers "
                             "SET verified = TRUE "
                             "WHERE carpool_id = %s "
                             "AND email = %s ",
-                            carpool_id, email)
+                               (carpool_id, email))
 
                 # Update the number of filled seats in the database
                 cursor.execute("UPDATE carpools "
                             "SET filled_seats = filled_seats + 1 "
-                            "WHERE id = %s ",
-                            carpool_id)
+                            "WHERE id = %s;",
+                               list(str(carpool_id)))
 
                 conn.commit()
                 cursor.close()
 
-            # Send the confirmation email
-            send_carpool_email(carpool_id, email)
+                # Send the confirmation email
+                send_carpool_email(carpool_id, email)
 
-            return {'message':'Confirmation code validated, email to join carpool sent'}, 200
-        else:
-            return {'message':'Invalid confirmation code'}, 401
+                return {'message':'Confirmation code validated, email to join carpool sent', 'confirm': 1}, 200
+            else:
+                return {'message':'Invalid confirmation code', 'confirm': 0}, 401
 
 
 # class LeaveCarpool(Resource):
@@ -464,6 +464,14 @@ class VerifyCodeAndSendGroupLink(Resource):
 class Test(Resource):
     def get(self):
         return {'Name': 'Jeff3'}
+
+# {
+#    carpool_id: id,
+#    code: "code",
+#    name: "Student name",
+#    email: "email@vanderbilt.edu"
+# }
+# curl -d '{'carpool_id': 1, 'code': 123456, 'name': "Ethan", 'email':ethan@vanderbilt.edu}' -H 'Content-Type: application/json' http://127.0.0.1:5000/verifyCode/
 
 api.add_resource(GetAllUpdatedDatabaseCarpools, '/')
 api.add_resource(AddCarpoolToDatabase, '/carpool')
