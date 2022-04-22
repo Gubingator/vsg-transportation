@@ -7,13 +7,13 @@
 import { Col, Row, Card, Button, Modal, Form } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 import { useState } from "react";
-import { SendEmail } from "../../services/verify";
+import { SendEmail, SendCode } from "../../services/verify";
 
 function CarpoolItem(props) {
   const [First, setFirst] = useState("");
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
-  const [id, setid] = useState("");
+  const [ID, setID] = useState("");
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -50,7 +50,7 @@ function CarpoolItem(props) {
     //   setWrong(true);
     //   //setShow(false);
     // }
-    sendCode(First, Email, Code, id).then(function (response) {
+    SendCode(Email, Code, First, props.carpool_ref['id']).then(function (response) {
       if (response) {
         setVerified(true);
         handleCloseConfirm();
@@ -63,8 +63,9 @@ function CarpoolItem(props) {
 
   function HandleEmailOnClick(e) {
     e.preventDefault();
-    send_confirmation_code_email(id, Email);
-    setShowConfirm(true);
+    SendEmail(Email, props.carpool_ref['id'], First).then(function (response) {
+      setShowConfirm(true);
+    });
   }
 
   return (
@@ -81,7 +82,7 @@ function CarpoolItem(props) {
                 fontSize: "17pt",
               }}
             >
-              {4 - props.carpool_ref["students"].length}
+              {4 - props.carpool_ref["filled_seats"]}
             </p>
           </Col>
           <Col>Leaving from: {props.carpool_ref["departure"]}</Col>

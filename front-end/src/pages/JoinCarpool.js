@@ -16,10 +16,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { GetCarpools } from "../services/carpools";
 import CarpoolList from "../components/carpools/CarpoolList";
 import Picture from "../components/layout/Picture";
+import { SendCode } from "../services/verify"; 
+
+/**
+ * This is what will be sent to the backend:
+ * {
+ *    carpool_id: id
+ *    code: "code"
+ *    name: "Student name",
+ *    email: "email@vanderbilt.edu"
+ * }
+ * 
+ */
 
 function JoinCarpool(props) {
   const dispatch = useDispatch();
   const carpools = useSelector((state) => state.carpoolsSlice.carpools);
+  console.log(carpools);
+
+  function test() {
+    SendCode("example@vanderbilt.edu", "123456", "Ethan", 1).then((response) => {
+      console.log(response);
+      });
+  }
 
   useEffect(() => {
     GetCarpools(dispatch);
@@ -28,6 +47,7 @@ function JoinCarpool(props) {
   return (
     <div className={classes.page}>
       <Picture circleText="JOIN A CARPOOL" />
+      <Button onClick={test}>Test</Button>
       <CarpoolList carpoolList={carpools} />
     </div>
   );

@@ -15,8 +15,10 @@ import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
 import { SendCode } from "../services/verify";
+import { useNavigate } from "react-router-dom";
 
 function ScheduleCarpool(props) {
+  let navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [First, setFirst] = useState("");
@@ -26,7 +28,6 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
-  const [ID, setID] = useState(-1);
 
   const [FirstNameVerified, setFirstNameVerified] = useState(false);
   const [EmailVerified, setEmailVerfied] = useState(false);
@@ -47,7 +48,10 @@ function ScheduleCarpool(props) {
   const [Code, setCode] = useState("");
   const [Verified, setVerified] = useState(false);
 
+  const [ID, setID] = useState(-1);
+
   const handleClose = () => setShow(false);
+
 
   function setMinDate() {
     const current = new window.Date();
@@ -87,6 +91,7 @@ function ScheduleCarpool(props) {
       if (response) {
         setVerified(true);
         setShow(false);
+        navigate("/join-carpool", { replace: true });
       } else {
         setVerified(false);
         setShow(false);
@@ -102,25 +107,12 @@ function ScheduleCarpool(props) {
     }
   }
   function HandleVerify() {
-    if (props.code === this.input.value) {
+    if (props.code == this.input.value) {
       setVerified(true);
       this.setShow(false);
     } else {
       setVerified(false);
       this.setShow(false);
-    }
-  }
-
-  function inputValid(e) {
-    if (
-      FirstNameVerified &&
-      EmailVerified &&
-      DateVerified &&
-      TimeVerified &&
-      DepartureVerified &&
-      DestinationVerified
-    ) {
-      HandleEmailOnClick(e);
     }
   }
 
@@ -135,6 +127,7 @@ function ScheduleCarpool(props) {
     console.log(Destination);
     const student = First + " " + Last;
     const date_array = Date.split("-");
+
 
     const new_carpool = {
       id: 1,
@@ -177,8 +170,9 @@ function ScheduleCarpool(props) {
 
       <div>
         <form className={classes.information}>
-          <label>First Name:</label>
+          <label htmlFor="first">First Name:</label>
           <input
+            id ="first"
             className={classes.input}
             type="text"
             required
@@ -186,7 +180,6 @@ function ScheduleCarpool(props) {
             pattern="([a-zA-Z]+)"
             onChange={(event) => {
               setFirst(event.target.value);
-              setFirstNameVerified(true);
             }}
           />
 
@@ -198,8 +191,9 @@ function ScheduleCarpool(props) {
               setLast(event.target.value);
             }}
           />
-          <label>Vanderbilt Email:</label>
+          <label htmlFor="vandy-email">Vanderbilt Email:</label>
           <input
+            id="vandy-email"
             className={classes.input}
             type="email"
             required
@@ -207,7 +201,6 @@ function ScheduleCarpool(props) {
             pattern=".+vanderbilt.edu"
             onChange={(event) => {
               setEmail(event.target.value);
-              setEmailVerfied(true);
             }}
           />
 
@@ -219,7 +212,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDate(event.target.value);
-              setDateVerified(true);
             }}
           />
 
@@ -230,7 +222,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setTime(event.target.value);
-              setTimeVerified(true);
             }}
           />
 
@@ -240,7 +231,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDeparture(event.target.value);
-              setDepartureVerified(true);
             }}
           />
 
@@ -259,7 +249,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDestination(event.target.value);
-              setDestinationVerified(true);
             }}
           />
           <datalist id="locations">
@@ -270,9 +259,20 @@ function ScheduleCarpool(props) {
             <option value="Kroger"></option>
             <option value="Target"></option>
           </datalist>
-          <Button type="submit" onClick={inputValid} className={classes.button}>
+          <Button
+            type="submit"
+            onClick={HandleEmailOnClick}
+            className={classes.button}
+          >
             SCHEDULE CARPOOL
           </Button>
+          {/* <button
+            type="submit"
+            onClick={HandleOnClick}
+            className={classes.button}
+          >
+            Add Carpool Request
+          </button> */}
         </form>
 
         <Modal
@@ -323,7 +323,7 @@ function ScheduleCarpool(props) {
           </Modal.Footer>
         </Modal>
       </div>
-      {Verified ? <h1>yes</h1> : <h1>no</h1>}
+      {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
     </div>
   );
 }

@@ -1,3 +1,9 @@
+/* Group Number: 5
+ * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+ * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+ * Homework 03
+ */
+
 import CarpoolItem from "./CarpoolItem";
 import { Container } from "react-bootstrap";
 import DateBlock from "./DateBlock";
@@ -130,6 +136,7 @@ function CarpoolList(props) {
 
   return (
     <Container style={{ paddingTop: "10px" }}>
+
       <h1
         style={{
           fontFamily: "Montserrat",
@@ -217,7 +224,7 @@ function CarpoolList(props) {
         }
         return (
           <div key={carpool.id}>
-            {update ? (
+            {update ? ( // add a new date block if we are supposed to.
               <DateBlock
                 dayOfWeek={date}
                 year={carpool["year"]}
