@@ -26,9 +26,9 @@ const axiosInstance = axios.create({
  * @param email The vanderbilt email to be checked
  * @return 1 if the email is a good email, 0 if it is not. 
  */
-export const SendEmail = async (email) => {
+export const SendEmail = async (email, carpool_id, name) => {
   try {
-    const toSend = { 'email': email };
+    const toSend = { 'email': email, 'carpool_id': carpool_id, 'name': name};
 
     axios
       .post(FlaskURL + "email/", toSend, config)
@@ -51,14 +51,14 @@ export const SendEmail = async (email) => {
  * @param code The code that the user entered
  * @return 1 If the code is correct, 0 otherwise
  */
-export const SendCode = async (email, code, name) => {
+export const SendCode = async (email, code, name, carpool_id) => {
   try {
-    const toSend = { 'email': email, 'code': code, 'name': name};
+    const toSend = { 'email': email, 'code': code, 'name': name, 'carpool_id': carpool_id};
 
     // True if confirmed
     // false if rejected
     let result = await axios
-      .post(FlaskURL + "code/", toSend, config)
+      .post(FlaskURL + "verifyCode", toSend, config)
       .then(function (response) {
         if (response['data']['confirm'] === 1){
           return true;
