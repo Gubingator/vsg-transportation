@@ -82,7 +82,7 @@ def send_confirmation_code_email(carpool_id, email_address):
 
     # Send email with the confirmation code
     msg = conf_email.set_verify_email_content(verification_code, email_address)
-    # conf_email.send_email(msg) TODO Uncomment this line
+    conf_email.send_email(msg) # TODO Uncomment this line
 
 
 # Sends an email with the GroupMe carpool link. If the carpool does not yet have a
@@ -96,12 +96,13 @@ def send_carpool_email(carpool_id, email_address):
         cursor.execute("SELECT groupme_link "
                     "FROM carpools "
                     "WHERE id = %s",
-                    carpool_id)
-        gm_link = cursor.fetchone()
+                       list(str(carpool_id)))
+        gm_link = cursor.fetchone()[0]
+        print("gm_link", gm_link)
 
         # Schedule Carpool: If the carpool does not have a GroupMe chat,
         #   then create a new chat and add the link to the database
-        if gm_link == None:
+        if gm_link is None:
             gm_link = conf_email.create_groupme_link()
             cursor.execute("UPDATE carpools "
                         "SET groupme_link = %s "
@@ -360,11 +361,14 @@ class AddCarpoolToDatabase(Resource):
 #
 # @return The new carpool to update on the front-end
 class JoinCarpool(Resource):
-    def get(self):
+    def post(self):
         # Get the data included in the post request
+
+        print("We made it here")
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
+        print(inst)
 
         send_confirmation_code_email(inst['carpool_id'], inst['email'])
         
@@ -414,7 +418,8 @@ class VerifyCodeAndSendGroupLink(Resource):
                         "FROM passengers "
                         "WHERE carpool_id = %s "
                         "AND email = %s "
-                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR);",
+                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR) "
+                        "ORDER BY created_at DESC;",
                            (carpool_id, email))
             rows = cursor.fetchall()
             conn.commit()
@@ -463,7 +468,11 @@ class VerifyCodeAndSendGroupLink(Resource):
 
 class Test(Resource):
     def get(self):
-        return {'Name': 'Jeff3'}
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
+            cursor.execute("SELECT * FROM passengers;")
+            rows = cursor.fetchall()
+            print(rows)
+        return {'passengers': 'printed'}
 
 # {
 #    carpool_id: id,
