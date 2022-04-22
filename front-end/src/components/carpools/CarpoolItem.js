@@ -7,11 +7,13 @@
 import { Col, Row, Card, Button, Modal, Form } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 import { useState } from "react";
+import { SendEmail } from "../../services/verify";
 
 function CarpoolItem(props) {
   const [First, setFirst] = useState("");
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
+  const [id, setid] = useState("");
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -40,50 +42,29 @@ function CarpoolItem(props) {
   }
 
   async function verifyClicked() {
-    if (Code === "000000") {
-      setVerified(true);
-      handleCloseConfirm();
-    } else {
-      setVerified(false);
-      setWrong(true);
-      //setShow(false);
-    }
-    // sendCode(First, Email, Code).then(function (response) {
-    //   if (response) {
-    //     setVerified(true);
-    //     setShow(false);
-    //   } else {
-    //     setVerified(false);
-    //     setShow(false);
-    //   }
-    // });
+    // if (Code === "000000") {
+    //   setVerified(true);
+    //   handleCloseConfirm();
+    // } else {
+    //   setVerified(false);
+    //   setWrong(true);
+    //   //setShow(false);
+    // }
+    sendCode(First, Email, Code, id).then(function (response) {
+      if (response) {
+        setVerified(true);
+        handleCloseConfirm();
+      } else {
+        setVerified(false);
+        setWrong(true);
+      }
+    });
   }
 
   function HandleEmailOnClick(e) {
     e.preventDefault();
-    console.log(First);
-    console.log(Last);
-    console.log(Email);
-    console.log(props.carpool_ref["time"]);
-    const student = First + " " + Last;
-
-    // const new_carpool = {
-    //   id: 1,
-    //   students: [student],
-    //   departure: Departure,
-    //   destination: Destination,
-    //   year: date_array[0],
-    //   month: date_array[1],
-    //   day: date_array[2],
-    //   time: Time + ":00",
-    // };
-
-    // console.log(new_carpool);
-
-    // NewCarpool(dispatch, new_carpool);
+    send_confirmation_code_email(id, Email);
     setShowConfirm(true);
-
-    // console.log(new_carpool);
   }
 
   return (
@@ -106,8 +87,7 @@ function CarpoolItem(props) {
           <Col>Leaving from: {props.carpool_ref["departure"]}</Col>
           <Col>Leaving time: {props.carpool_ref["time"].substring(0, 5)}</Col>
           <Col>
-            Destination:
-            {props.carpool_ref["destination"]}
+            Destination: {props.carpool_ref["destination"]}
             {/* Students:
           <ul className={classes.list}>
             {props.carpool_ref["students"].map((student) => {
@@ -240,7 +220,10 @@ function CarpoolItem(props) {
                   required
                 />
                 {Wrong ? (
-                  <Form.Text className="text-muted">INCORRECT CODE!</Form.Text>
+                  <Form.Text className="text-muted">
+                    INCORRECT CODE! <br />
+                    Reload the page and resubmit in order to resend.
+                  </Form.Text>
                 ) : (
                   <div></div>
                 )}
@@ -251,9 +234,9 @@ function CarpoolItem(props) {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseConfirm}>
+          {/* <Button variant="secondary" onClick={handleCloseConfirm}>
             Resend
-          </Button>
+          </Button> */}
           <Button
             variant="primary"
             onClick={verifyClicked}

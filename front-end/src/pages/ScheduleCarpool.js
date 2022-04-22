@@ -26,6 +26,7 @@ function ScheduleCarpool(props) {
   const [Time, setTime] = useState("");
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
+  const [ID, setID] = useState(-1);
 
   const [FirstNameVerified, setFirstNameVerified] = useState(false);
   const [EmailVerified, setEmailVerfied] = useState(false);
@@ -62,7 +63,7 @@ function ScheduleCarpool(props) {
     // console.log(date);
 
     //console.log(Date);
-    
+
     document.getElementById("datePickerId").setAttribute("min", date);
   }
 
@@ -70,27 +71,27 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-  //function resendClicked() {
-  //sendEmail();
-  //}
+  // function resendClicked() {
+  //   sendEmail();
+  // }
 
   async function verifyClicked() {
-    if (Code === "000000") {
-      setVerified(true);
-      setShow(false);
-    } else {
-      setVerified(false);
-      setShow(false);
-    }
-    // sendCode(Email, Code, First).then(function (response) {
-    //   if (response) {
-    //     setVerified(true);
-    //     setShow(false);
-    //   } else {
-    //     setVerified(false);
-    //     setShow(false);
-    //   }
-    // });
+    // if (Code === "000000") {
+    //   setVerified(true);
+    //   setShow(false);
+    // } else {
+    //   setVerified(false);
+    //   setShow(false);
+    // }
+    SendCode(Email, Code, First, ID).then(function (response) {
+      if (response) {
+        setVerified(true);
+        setShow(false);
+      } else {
+        setVerified(false);
+        setShow(false);
+      }
+    });
   }
 
   function HandleScheduleOnClick() {
@@ -137,19 +138,21 @@ function ScheduleCarpool(props) {
 
     const new_carpool = {
       id: 1,
-      students: [student],
       departure: Departure,
       destination: Destination,
       year: date_array[0],
       month: date_array[1],
       day: date_array[2],
       time: Time + ":00",
+      filled_seats: 0,
     };
 
     console.log(new_carpool);
 
-    NewCarpool(dispatch, new_carpool);
-    setShow(true);
+    NewCarpool(dispatch, new_carpool, Email).then(function (response) {
+      setID(response);
+      setShow(true);
+    });
 
     console.log(new_carpool);
   }
@@ -307,9 +310,9 @@ function ScheduleCarpool(props) {
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            {/* <Button variant="secondary" onClick={handleClose}>
               Resend
-            </Button>
+            </Button> */}
             <Button
               variant="primary"
               onClick={verifyClicked}
