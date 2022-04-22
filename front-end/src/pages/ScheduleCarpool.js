@@ -59,7 +59,10 @@ function ScheduleCarpool(props) {
     if (day < 10) strDay = "0" + String(day);
 
     const date = `${current.getFullYear()}-${strMonth}-${strDay}`;
-    console.log(date);
+    // console.log(date);
+
+    //console.log(Date);
+    
     document.getElementById("datePickerId").setAttribute("min", date);
   }
 
@@ -176,7 +179,7 @@ function ScheduleCarpool(props) {
             className={classes.input}
             type="text"
             required
-            maxLength="40"
+            maxLength="20"
             pattern="([a-zA-Z]+)"
             onChange={(event) => {
               setFirst(event.target.value);
