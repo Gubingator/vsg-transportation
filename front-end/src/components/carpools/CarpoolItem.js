@@ -63,6 +63,7 @@ function CarpoolItem(props) {
 
   function HandleEmailOnClick(e) {
     e.preventDefault();
+    // response will equal -1 if the email was not valid (idk if we need this though)
     SendEmail(Email, props.carpool_ref['id'], First).then(function (response) {
       setShowConfirm(true);
     });
