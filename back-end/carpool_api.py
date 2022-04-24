@@ -96,7 +96,7 @@ def send_carpool_email(carpool_id, email_address):
         cursor.execute("SELECT groupme_link "
                     "FROM carpools "
                     "WHERE id = %s",
-                       list(str(carpool_id)))
+                       list([str(carpool_id)]))
         gm_link = cursor.fetchone()[0]
         print("gm_link", gm_link)
 
@@ -258,6 +258,7 @@ class AddExampleData(Resource):
 class GetAllUpdatedDatabaseCarpools(Resource):
     def get(self):
         rows = None
+
         with conn.cursor(buffered=True, dictionary=True) as cursor:
 
             # Delete carpools from the database that have already occurred
@@ -388,7 +389,7 @@ class DeleteCarpool(Resource):
     def delete(self, carpool_id):
         with conn.cursor(buffered=True) as cursor:
             cursor.execute("DELETE FROM carpools WHERE id = %s",
-                        list(carpool_id))
+                        list([str(carpool_id)]))
             conn.commit()
             cursor.close()
 
@@ -444,7 +445,7 @@ class VerifyCodeAndSendGroupLink(Resource):
                 cursor.execute("UPDATE carpools "
                             "SET filled_seats = filled_seats + 1 "
                             "WHERE id = %s;",
-                               list(str(carpool_id)))
+                               list([str(carpool_id)]))
 
                 conn.commit()
                 cursor.close()
