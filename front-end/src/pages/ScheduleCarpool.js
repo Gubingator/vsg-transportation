@@ -52,7 +52,6 @@ function ScheduleCarpool(props) {
 
   const handleClose = () => setShow(false);
 
-
   function setMinDate() {
     const current = new window.Date();
     var month = current.getMonth() + 1;
@@ -116,8 +115,14 @@ function ScheduleCarpool(props) {
     }
   }
 
-  function HandleEmailOnClick(e) {
-    e.preventDefault();
+  async function HandleEmailOnClick(e) {
+    let form = document.getElementById("formId");
+    let FormValid = false;
+    // this allows us to do the form validation and not reload the page.
+    if (form.checkValidity() === true) {
+      e.preventDefault();
+      FormValid = true;
+    }
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -127,7 +132,6 @@ function ScheduleCarpool(props) {
     console.log(Destination);
     const student = First + " " + Last;
     const date_array = Date.split("-");
-
 
     const new_carpool = {
       id: 1,
@@ -142,11 +146,20 @@ function ScheduleCarpool(props) {
 
     console.log(new_carpool);
 
-    // response is an integer. If it is less than 0, there was an error.
-    NewCarpool(dispatch, new_carpool, Email).then(function (response) {
-      setID(response);
-      setShow(true);
-    });
+    console.log(FormValid)
+    if (FormValid) { // checks to make sure we have a good form. 
+      // response is an integer. If it is less than 0, there was an error.
+      NewCarpool(dispatch, new_carpool, Email).then(function (response) {
+        console.log("New Carpool");
+        console.log(response);
+        if (response > 0) {
+          setID(response);
+          setShow(true);
+        } else {
+          // do something else;
+        }
+      });
+    }
 
     console.log(new_carpool);
   }
@@ -170,10 +183,10 @@ function ScheduleCarpool(props) {
       </Container>
 
       <div>
-        <form className={classes.information}>
+        <form className={classes.information} id="formId">
           <label htmlFor="first">First Name:</label>
           <input
-            id ="first"
+            id="first"
             className={classes.input}
             type="text"
             required
