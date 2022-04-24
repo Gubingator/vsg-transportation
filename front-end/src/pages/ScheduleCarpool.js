@@ -50,7 +50,13 @@ function ScheduleCarpool(props) {
 
   const [ID, setID] = useState(-1);
 
-  const handleClose = () => setShow(false);
+  const [ScheduleButtonDisabled, setScheduleButtonDisabled] = useState(false);
+  const [VerifiedButtonDisabled, setVerifiedButtonDisabled] = useState(false);
+
+  const handleClose = () => {
+    setShow(false)
+    setVerifiedButtonDisabled(false);
+  };
 
   function setMinDate() {
     const current = new window.Date();
@@ -79,6 +85,7 @@ function ScheduleCarpool(props) {
   // }
 
   async function verifyClicked() {
+    setVerifiedButtonDisabled(true);
     // if (Code === "000000") {
     //   setVerified(true);
     //   setShow(false);
@@ -87,6 +94,7 @@ function ScheduleCarpool(props) {
     //   setShow(false);
     // }
     SendCode(Email, Code, First, ID).then(function (response) {
+      setVerifiedButtonDisabled(false);
       if (response) {
         setVerified(true);
         setShow(false);
@@ -118,6 +126,7 @@ function ScheduleCarpool(props) {
   async function HandleEmailOnClick(e) {
     let form = document.getElementById("formId");
     let FormValid = false;
+    setScheduleButtonDisabled(true);
     // this allows us to do the form validation and not reload the page.
     if (form.checkValidity() === true) {
       e.preventDefault();
@@ -155,7 +164,9 @@ function ScheduleCarpool(props) {
         if (response > 0) {
           setID(response);
           setShow(true);
+          setScheduleButtonDisabled(false);
         } else {
+          setScheduleButtonDisabled(false);
           // do something else;
         }
       });
@@ -277,6 +288,7 @@ function ScheduleCarpool(props) {
             type="submit"
             onClick={HandleEmailOnClick}
             className={classes.button}
+            disabled={ScheduleButtonDisabled}
           >
             SCHEDULE CARPOOL
           </Button>
@@ -330,6 +342,7 @@ function ScheduleCarpool(props) {
             <Button
               variant="primary"
               onClick={verifyClicked}
+              disabled={VerifiedButtonDisabled}
               style={{ backgroundColor: "green" }}
             >
               Verify
