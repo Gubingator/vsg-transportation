@@ -7,8 +7,7 @@ import * as axios from "axios";
 
 const FlaskURL3 = `http://127.0.0.1:5000/`;
 const FlaskURL2 = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
-const FlaskURL = 'https://carpool-flask-api-vsg.azurewebsites.net/';
-
+const FlaskURL = "https://carpool-flask-api-vsg.azurewebsites.net/";
 
 var config = {
   headers: {
@@ -26,29 +25,36 @@ const axiosInstance = axios.create({
  * sent to that email so the user can confirm it
  *
  * @param email The vanderbilt email to be checked
- * @return 1 if the email is a good email, 0 if it is not. 
+ * @return 1 if the email is a good email, 0 if it is not.
  */
 export const SendEmail = async (email, carpool_id, name) => {
   try {
-    const toSend = { 'email': email, 'carpool_id': carpool_id, 'name': name};
+    const toSend = { email: email, carpool_id: carpool_id, name: name };
 
     console.log(toSend);
-    axios
+    let result = await axios
       .post(FlaskURL + "email", toSend, config)
       .then(function (response) {
-        return response["data"]["confirm"];
+        if (response["data"]["confirm"] < 0){
+          return false;
+        }
+        return true;
       })
       .catch(function (error) {
         console.log(error);
+        return false;
       });
+
+    return result;
   } catch {
     console.log("Send Email Error");
+    return false;
   }
 };
 
 /*
  * Sends the code and the email with associated with it to
- * check to make sure the code is correct. 
+ * check to make sure the code is correct.
  *
  * @param email The email the code was sent to
  * @param code The code that the user entered
@@ -56,14 +62,19 @@ export const SendEmail = async (email, carpool_id, name) => {
  */
 export const SendCode = async (email, code, name, carpool_id) => {
   try {
-    const toSend = { 'email': email, 'code': code, 'name': name, 'carpool_id': carpool_id};
+    const toSend = {
+      email: email,
+      code: code,
+      name: name,
+      carpool_id: carpool_id,
+    };
 
     // True if confirmed
     // false if rejected
     let result = await axios
       .post(FlaskURL + "verifyCode", toSend, config)
       .then(function (response) {
-        if (response['data']['confirm'] === 1){
+        if (response["data"]["confirm"] === 1) {
           return true;
         } else {
           return false;
@@ -71,9 +82,10 @@ export const SendCode = async (email, code, name, carpool_id) => {
       })
       .catch(function (error) {
         console.log(error);
+        return false;
       });
 
-      return result;
+    return result;
   } catch {
     console.log("Send Code Error");
     return false;

@@ -319,6 +319,9 @@ class AddCarpoolToDatabase(Resource):
         if valid_data != VALID:
             return {'id': valid_data}
 
+        if not conf_email.is_valid_email_address(inst['email']):
+            return {'id': -1}
+
         rows = None
         # Insert the data into the database
         with conn.cursor(buffered=True, dictionary=True) as cursor:
@@ -370,9 +373,12 @@ class JoinCarpool(Resource):
         inst = json.loads(str(data))
         print(inst)
 
+        if not conf_email.is_valid_email_address(inst['email']):
+            return {'confirm': -1}
+
         send_confirmation_code_email(inst['carpool_id'], inst['email'])
         
-        return {'Confirm': 'True'}
+        return {'confirm': 0}
 
 
 # Delete the carpool at the id specified

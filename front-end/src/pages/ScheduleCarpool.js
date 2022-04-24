@@ -142,6 +142,7 @@ function ScheduleCarpool(props) {
 
     console.log(new_carpool);
 
+    // response is an integer. If it is less than 0, there was an error.
     NewCarpool(dispatch, new_carpool, Email).then(function (response) {
       setID(response);
       setShow(true);
