@@ -1,8 +1,4 @@
-/* Group Number: 5
- * Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
- * sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
- * Homework 03
- */
+
 
 /*
  * This file includes all information around handling the carpool data.
@@ -16,8 +12,7 @@ import {
 } from "../store/carpoolsSlice";
 import * as axios from "axios";
 
-const FlaskURL3 = 'http://127.0.0.1:5000/'
-const FlaskURL2 = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
+const FlaskURL2 = 'http://127.0.0.1:5000/'
 const FlaskURL = 'https://carpool-flask-api-vsg.azurewebsites.net/';
 
 var config = {
@@ -147,31 +142,3 @@ export const DeleteCarpool = async (dispatch, carpool) => {
   }
 };
 
-/*
- * Update a specific carpool in the database
- *
- * @param dispatch    The dispact React Redux object
- * @param carpool_id  The id of the carpool to be set
- * @param carpool     The carpool to be set to
- */
-export const UpdateCarpool = async (dispatch, carpool_id, new_student) => {
-  try {
-    // call api
-    const toSend = { name: new_student['name'], email: new_student['email']};
-
-    axios
-      .post(FlaskURL + "carpool/join" + carpool_id, toSend, config)
-      .then(function (response) {
-        // get the new data
-        const new_data = response["data"]["carpool"];
-        dispatch(updateCarpool(new_data));
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-    // update capools
-  } catch {
-    console.log("Error when Updating Carpool");
-  }
-};
