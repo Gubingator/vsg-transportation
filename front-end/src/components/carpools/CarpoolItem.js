@@ -14,6 +14,7 @@ function CarpoolItem(props) {
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
   const [ID, setID] = useState("");
+  const [showError, setShowError] = useState(false);
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -30,11 +31,11 @@ function CarpoolItem(props) {
     setShow(true);
   }
 
-  function formatTime(){
+  function formatTime() {
     let minutes = props.carpool_ref["time"].substring(3, 5);
-    let hour = parseInt(props.carpool_ref["time"].substring(0,2));
+    let hour = parseInt(props.carpool_ref["time"].substring(0, 2));
     let postFix = "AM";
-    if (hour > 12){
+    if (hour > 12) {
       hour = hour - 12;
       postFix = "PM";
     }
@@ -42,16 +43,29 @@ function CarpoolItem(props) {
   }
 
   function inputValid(e) {
-    if (FirstNameVerified && EmailVerified) {
+    let form = document.getElementById("formId2");
+    let FormValid = false;
+    console.log("form");
+    console.log(form.checkValidity());
+
+    if (form.checkValidity() === true) {
+      e.preventDefault();
+      FormValid = true;
+    }
+    console.log("First");
+    console.log(First);
+
+    if (FormValid) {
       handleClose();
+      setFirstMessage(false);
+      setEmailMessage(false);
       HandleEmailOnClick(e);
-    } else if (!FirstNameVerified) {
+    } else if (First === "") {
       setFirstMessage(true);
-    } else if (!EmailVerified) {
+    } else {
       setEmailMessage(true);
     }
   }
-
 
   async function verifyClicked() {
     // if (Code === "000000") {
@@ -76,10 +90,13 @@ function CarpoolItem(props) {
   }
 
   function HandleEmailOnClick(e) {
-    e.preventDefault();
     // response will equal -1 if the email was not valid (idk if we need this though)
     SendEmail(Email, props.carpool_ref["id"], First).then(function (response) {
-      setShowConfirm(true);
+      if (response){
+        setShowConfirm(true);
+      } else {
+        setShowError(true);
+      }
     });
   }
 
@@ -108,9 +125,7 @@ function CarpoolItem(props) {
           </Col>
           <Col sm className={classes.centerItem}>
             Leaving time:
-            <p className={classes.dataParagraph}>
-              {formatTime()}
-            </p>
+            <p className={classes.dataParagraph}>{formatTime()}</p>
           </Col>
           <Col sm className={classes.centerItem}>
             Destination:
@@ -147,7 +162,7 @@ function CarpoolItem(props) {
         </Modal.Header>
         <Modal.Body className={classes.label}>
           {true ? (
-            <Form>
+            <Form id="formId2">
               <Form.Group className="mb-3" controlId="formBasicCode">
                 <Form.Label className={classes.label}>First Name:</Form.Label>
                 <Form.Control
@@ -275,6 +290,21 @@ function CarpoolItem(props) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal
+          show={showError}
+          onHide={() => setShowError(false)}
+          backdrop="static"
+          keyboard={false}
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+        >
+          <Modal.Header closeButton></Modal.Header>
+          <Modal.Body>
+            <p>An error has occured. Please reload the page and try again.</p>
+          </Modal.Body>
+        </Modal>
     </div>
   );
 }

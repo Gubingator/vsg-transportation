@@ -67,6 +67,8 @@ function ScheduleCarpool(props) {
 
   async function verifyClicked() {
     setVerifiedButtonDisabled(true);
+    console.log("sending code");
+
     SendCode(Email, Code, First, ID).then(function (response) {
       setVerifiedButtonDisabled(false);
       if (response) {
@@ -305,7 +307,8 @@ function ScheduleCarpool(props) {
                   {Wrong ? (
                     <Form.Text className="text-muted">
                       INCORRECT CODE! <br />
-                      Reload the page and resubmit in order to resend.
+                      If you didn't receive a code reload the page and try
+                      again.
                     </Form.Text>
                   ) : (
                     <div></div>
