@@ -2,6 +2,7 @@
 #
 # Author: Sarah Zhang
 
+from traceback import print_tb
 import requests
 from datetime import datetime
 import config
@@ -66,6 +67,7 @@ def create_chat_bot(group_id):
 
     response_dict = response.json()
     bot_id = response_dict['response']['bot']['bot_id']
+    print("Bot_id 1:", bot_id)
     return bot_id
 
 
@@ -76,6 +78,8 @@ def create_chat_bot(group_id):
 """
 def send_first_chat_message(carpool_info, bot_id):
     # Create a message with all the carpool information
+    print("We made it to sending a chat message")
+
     msg_txt = "Welcome to the chat! " + get_carpool_info_message(carpool_info)
 
     msg_txt = msg_txt + "\n\nVandy Transit Carpools does not monitor this chat. If you wish to leave the carpool or change the date, time, or departure location, then communicate with others in this chat."
@@ -84,6 +88,8 @@ def send_first_chat_message(carpool_info, bot_id):
         "bot_id" : bot_id,
         "text" : msg_txt
     }
+
+    print("message params: ", msg_params)
 
     # Send the message
     response = requests.post(url=config.gm_api_send_bot_msg_url, params=msg_params)

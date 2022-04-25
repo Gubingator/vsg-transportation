@@ -46,7 +46,7 @@ def is_valid_email_address(email):
 """
 def set_verify_email_content(verification_code, recipient):
     msg = EmailMessage()
-    with open("resources\\verify-email-template.txt") as emailfile:  # TODO: May need to change path
+    with open("resources/verify-email-template.txt") as emailfile:  # TODO: May need to change path
         data = emailfile.read()
         data = data.replace("verification_code", verification_code)
         msg.set_content(data)
@@ -80,7 +80,7 @@ def create_groupme_chat():
 """
 def set_gm_email_content(recipient, gm_link):
     msg = EmailMessage()
-    with open("resources\\gm-email-template.txt") as emailfile: # TODO: Maybe add back-end\\ back in
+    with open("resources/gm-email-template.txt") as emailfile: # TODO: Maybe add back-end\\ back in
         data = emailfile.read()
         data = data.replace("gm_link", gm_link)
         msg.set_content(data)

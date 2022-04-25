@@ -110,7 +110,8 @@ def send_carpool_email(carpool_id, email_address):
                        "FROM groupme_info "
                        "WHERE carpool_id = %s",
                        list([str(carpool_id)]))
-        gm_link = cursor.fetchone()[0]
+        gm_link = cursor.fetchone()
+        print("GM Link2:", gm_link)
         
         conn.commit()
         cursor.close()
@@ -120,22 +121,28 @@ def send_carpool_email(carpool_id, email_address):
     if gm_link is None:
         group_id, gm_link = conf_email.create_groupme_chat()
         bot_id = groupme_bot.create_chat_bot(group_id)
+
+        print("Group_Id:", group_id)
+        print("GM Link:", gm_link)
+        print("Bot ID 2:", bot_id)
+        print("Carpool ID", carpool_id)
         
-        with conn.cursor(buffered=True) as cursor:
+        with conn.cursor(buffered=True, dictionary=True) as cursor:
             cursor.execute("INSERT INTO groupme_info "
                            "VALUES (%s, %s, %s, %s); ",
                            (group_id, carpool_id, bot_id, gm_link))
 
             # Get carpool logistical info to send a message to the GroupMe chat
-            cursor.execute("SELECT * FROM carpools WHERE carpool_id = %s;",
+            cursor.execute("SELECT * FROM carpools WHERE id = %s;",
                            list([str(carpool_id)]))
             rows = cursor.fetchall()
-            carpool_info = parse_carpool_set_sql(rows)
+            carpool_info = parse_carpool_set_sql(rows)[0]
             groupme_bot.send_first_chat_message(carpool_info, bot_id)
 
             conn.commit()
             cursor.close()
-
+    else:
+        gm_link = gm_link[0]
     # Send the email
     email_msg = conf_email.set_gm_email_content(email_address, gm_link)
     conf_email.send_email(email_msg)
@@ -255,7 +262,7 @@ class ResetDatabase(Resource):
             cursor.execute("CREATE TABLE groupme_info "
                            "(group_id INTEGER PRIMARY KEY, "
                            "carpool_id INTEGER, "
-                           "bot_id INTEGER DEFAULT NULL, "
+                           "bot_id CHAR(50) DEFAULT NULL, "
                            "groupme_link VARCHAR(255) DEFAULT NULL, "
                            "CONSTRAINT gm_fk "
                            "FOREIGN KEY (carpool_id) "
@@ -370,7 +377,7 @@ class AddCarpoolToDatabase(Resource):
             inst['month'],
             inst['year'],
             inst['departure'],
-            inst['desination']
+            inst['destination']
         )
         
         if valid_data != VALID:
@@ -484,7 +491,8 @@ class VerifyCodeAndSendGroupLink(Resource):
             rows = cursor.fetchall()
 
             cursor.execute("DELETE FROM passengers "
-                        "WHERE NOW() > DATE_ADD(created_at, INTERVAL 1 HOUR);")
+                        "WHERE NOW() > DATE_ADD(created_at, INTERVAL 1 HOUR) "
+                        "AND verified = FALSE;")
 
             conn.commit()
 
