@@ -17,6 +17,8 @@ db_config = {
 # Access GroupMe API
 gm_access_token = kv_client.get_secret("gm-api-token").value
 gm_api_groups_url = f"https://api.groupme.com/v3/groups?access_token={gm_access_token}"
+gm_api_create_bot_url = f"https://api.groupme.com/v3/bots?token={gm_access_token}"
+gm_api_send_bot_msg_url = f"https://api.groupme.com/v3/bots/post?token={gm_access_token}"
 
 # Email information
 sender = "vandytransitcarpool@gmail.com"
