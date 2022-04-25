@@ -29,21 +29,9 @@ function ScheduleCarpool(props) {
   const [Departure, setDeparture] = useState("");
   const [Destination, setDestination] = useState("");
 
-  const [FirstNameVerified, setFirstNameVerified] = useState(false);
-  const [EmailVerified, setEmailVerfied] = useState(false);
-  const [DateVerified, setDateVerified] = useState(false);
-  const [TimeVerified, setTimeVerified] = useState(false);
-  const [DepartureVerified, setDepartureVerified] = useState(false);
-  const [DestinationVerified, setDestinationVerified] = useState(false);
+  const [Wrong, setWrong] = useState(false);
 
-  const [FirstMessage, setFirstMessage] = useState(false);
-  const [EmailMessage, setEmailMessage] = useState(false);
-  const [DateMessage, setDateMessage] = useState(false);
-  const [TimeMessage, setTimeMessage] = useState(false);
-  const [DepartureMessage, setDepartureMessage] = useState(false);
-  const [DestinationMessage, setDestinationMessage] = useState(false);
-
-  const [Schedule, setSchedule] = useState(true);
+  const [showError, setShowError] = useState(false);
   const [show, setShow] = useState(false);
   const [Code, setCode] = useState("");
   const [Verified, setVerified] = useState(false);
@@ -63,9 +51,6 @@ function ScheduleCarpool(props) {
     if (day < 10) strDay = "0" + String(day);
 
     const date = `${current.getFullYear()}-${strMonth}-${strDay}`;
-    // console.log(date);
-
-    //console.log(Date);
 
     document.getElementById("datePickerId").setAttribute("min", date);
   }
@@ -74,45 +59,18 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-  // function resendClicked() {
-  //   sendEmail();
-  // }
-
   async function verifyClicked() {
-    // if (Code === "000000") {
-    //   setVerified(true);
-    //   setShow(false);
-    // } else {
-    //   setVerified(false);
-    //   setShow(false);
-    // }
     SendCode(Email, Code, First, ID).then(function (response) {
       if (response) {
         setVerified(true);
+        setWrong(false);
         setShow(false);
         navigate("/join-carpool", { replace: true });
       } else {
         setVerified(false);
-        setShow(false);
+        setWrong(true);
       }
     });
-  }
-
-  function HandleScheduleOnClick() {
-    if (Schedule) {
-      setSchedule(false);
-    } else {
-      setSchedule(true);
-    }
-  }
-  function HandleVerify() {
-    if (props.code == this.input.value) {
-      setVerified(true);
-      this.setShow(false);
-    } else {
-      setVerified(false);
-      this.setShow(false);
-    }
   }
 
   async function HandleEmailOnClick(e) {
@@ -146,17 +104,17 @@ function ScheduleCarpool(props) {
 
     console.log(new_carpool);
 
-    console.log(FormValid)
-    if (FormValid) { // checks to make sure we have a good form. 
+    console.log(FormValid);
+    if (FormValid) {
+      // checks to make sure we have a good form.
       // response is an integer. If it is less than 0, there was an error.
       NewCarpool(dispatch, new_carpool, Email).then(function (response) {
-        console.log("New Carpool");
-        console.log(response);
         if (response > 0) {
           setID(response);
+          setWrong(false);
           setShow(true);
         } else {
-          // do something else;
+          setShowError(true);
         }
       });
     }
@@ -280,13 +238,6 @@ function ScheduleCarpool(props) {
           >
             SCHEDULE CARPOOL
           </Button>
-          {/* <button
-            type="submit"
-            onClick={HandleOnClick}
-            className={classes.button}
-          >
-            Add Carpool Request
-          </button> */}
         </form>
 
         <Modal
@@ -317,6 +268,14 @@ function ScheduleCarpool(props) {
                     }}
                     required
                   />
+                  {Wrong ? (
+                    <Form.Text className="text-muted">
+                      INCORRECT CODE! <br />
+                      Reload the page and resubmit in order to resend.
+                    </Form.Text>
+                  ) : (
+                    <div></div>
+                  )}
                 </Form.Group>
               </Form>
             ) : (
@@ -336,8 +295,22 @@ function ScheduleCarpool(props) {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        <Modal
+          show={showError}
+          onHide={() => setShowError(false)}
+          backdrop="static"
+          keyboard={false}
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+        >
+          <Modal.Header closeButton></Modal.Header>
+          <Modal.Body>
+            <p>An error has occured. Please reload the page and try again.</p>
+          </Modal.Body>
+        </Modal>
       </div>
-      {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
     </div>
   );
 }
