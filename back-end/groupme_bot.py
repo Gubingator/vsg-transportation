@@ -3,7 +3,30 @@
 # Author: Sarah Zhang
 
 import requests
+from datetime import datetime
 import config
+
+
+"""Helper function to format the date into a user-friendly string.
+
+:param time: The date (in digits): ##-##
+:returns: The date (in words).
+"""
+def format_date(date):
+    date_format = datetime.strptime(date, '%m%d%Y')
+    date_str = datetime.strftime(date_format, '%B %d, %Y')
+    return date_str
+
+
+"""Helper function to format the time into a user-friendly string.
+
+:param time: The time (24 hour format).
+:returns: The time (12 hour format).
+"""
+def format_time(time):
+    time_format = datetime.strptime(time, '%H:%M:%S')
+    time_str = datetime.strftime(time_format, '%I:%M %p')
+    return time_str
 
 
 """Helper function to format the carpool info into a message.
@@ -12,13 +35,14 @@ import config
 :returns: The message text.
 """
 def get_carpool_info_message(carpool_info):
-    carpool_date = carpool_info['month'] + "-" + carpool_info['day'] + "-" + carpool_info['year']
+    carpool_date = format_date(carpool_info['month'] + carpool_info['day'] + carpool_info['year'])
+    carpool_time = format_time(carpool_info['time'])
 
     msg_txt = "Your carpool to {} will depart from {} on {} at {}.".format(
         carpool_info['destination'],
         carpool_info['departure'],
         carpool_date,
-        carpool_info['time']
+        carpool_time
     )
 
     return msg_txt
