@@ -222,7 +222,8 @@ function ScheduleCarpool(props) {
             }}
           />
 
-          <label>Departure Location (choose one or type your own): </label>
+          <label style={{textAlign: "center"}} >Departure Location <br/>(choose one or type your own):{" "}
+          </label>
           <input
             list="departLocations"
             required
@@ -240,7 +241,7 @@ function ScheduleCarpool(props) {
             <option value="Other"></option>
           </datalist>
 
-          <label>Destination (choose one or type your own): </label>
+          <label style={{textAlign: "center"}}> Destination <br/> (choose one or type your own): </label>
           <input
             list="locations"
             required
