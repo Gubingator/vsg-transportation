@@ -129,6 +129,8 @@ function ScheduleCarpool(props) {
           // do something else;
         }
       });
+    } else {
+      setScheduleButtonDisabled(false);
     }
 
     console.log(new_carpool);
