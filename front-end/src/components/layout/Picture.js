@@ -10,6 +10,8 @@ import {
   Figure,
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import pic from "./mainImage.png";
+
 
 function Picture(props) {
   const blur = props.blur;
@@ -17,8 +19,10 @@ function Picture(props) {
   return (
     <div>
       <Figure fluid="true" className={classes.fig}>
+        {// src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png" **/ 
+        }
         <Figure.Image
-          src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
+          src= {pic}
           className="img-fluid"
           style={{
             margin: "0px",
