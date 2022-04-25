@@ -30,6 +30,17 @@ function CarpoolItem(props) {
     setShow(true);
   }
 
+  function formatTime(){
+    let minutes = props.carpool_ref["time"].substring(3, 5);
+    let hour = parseInt(props.carpool_ref["time"].substring(0,2));
+    let postFix = "AM";
+    if (hour > 12){
+      hour = hour - 12;
+      postFix = "PM";
+    }
+    return hour.toString() + ":" + minutes + " " + postFix;
+  }
+
   function inputValid(e) {
     if (FirstNameVerified && EmailVerified) {
       handleClose();
@@ -41,6 +52,7 @@ function CarpoolItem(props) {
     }
   }
 
+
   async function verifyClicked() {
     // if (Code === "000000") {
     //   setVerified(true);
@@ -50,7 +62,9 @@ function CarpoolItem(props) {
     //   setWrong(true);
     //   //setShow(false);
     // }
-    SendCode(Email, Code, First, props.carpool_ref['id']).then(function (response) {
+    SendCode(Email, Code, First, props.carpool_ref["id"]).then(function (
+      response
+    ) {
       if (response) {
         setVerified(true);
         handleCloseConfirm();
@@ -63,7 +77,8 @@ function CarpoolItem(props) {
 
   function HandleEmailOnClick(e) {
     e.preventDefault();
-    SendEmail(Email, props.carpool_ref['id'], First).then(function (response) {
+    // response will equal -1 if the email was not valid (idk if we need this though)
+    SendEmail(Email, props.carpool_ref["id"], First).then(function (response) {
       setShowConfirm(true);
     });
   }
@@ -72,7 +87,7 @@ function CarpoolItem(props) {
     <div>
       <Card className={classes.cardData}>
         <Row>
-          <Col style={{ textAlign: "center" }}>
+          <Col sm style={{ textAlign: "center" }}>
             OPEN SEATS:
             <br />
             <p
@@ -85,10 +100,23 @@ function CarpoolItem(props) {
               {4 - props.carpool_ref["filled_seats"]}
             </p>
           </Col>
-          <Col>Leaving from: {props.carpool_ref["departure"]}</Col>
-          <Col>Leaving time: {props.carpool_ref["time"].substring(0, 5)}</Col>
-          <Col>
-            Destination: {props.carpool_ref["destination"]}
+          <Col sm className={classes.centerItem}>
+            Leaving from:
+            <p className={classes.dataParagraph}>
+              {props.carpool_ref["departure"]}
+            </p>
+          </Col>
+          <Col sm className={classes.centerItem}>
+            Leaving time:
+            <p className={classes.dataParagraph}>
+              {formatTime()}
+            </p>
+          </Col>
+          <Col sm className={classes.centerItem}>
+            Destination:
+            <p className={classes.dataParagraph}>
+              {props.carpool_ref["destination"]}{" "}
+            </p>
             {/* Students:
           <ul className={classes.list}>
             {props.carpool_ref["students"].map((student) => {
@@ -96,7 +124,7 @@ function CarpoolItem(props) {
             })}
           </ul> */}
           </Col>
-          <Col style={{ paddingTop: "7px" }}>
+          <Col sm style={{ paddingTop: "7px" }} className={classes.centerItem}>
             <Button onClick={handleShow} className={classes.buttonData}>
               JOIN
             </Button>

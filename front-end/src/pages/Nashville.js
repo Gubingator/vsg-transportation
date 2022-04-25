@@ -44,7 +44,7 @@ function Nashville(props) {
 
   return (
     <div>
-      <Picture circleText="NASHVILLE TRANSPORTATION" />
+      <Picture circleText="NASHVILLE TRANSPORTATION" blur="blur(4px)" />
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>
           <DropdownCard

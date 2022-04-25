@@ -5,10 +5,12 @@
 
 .cardData {
   margin-top: 7px;
-  margin-bottom: 13px;
+  margin-bottom: 5px;
   padding-top: 5px;
   font-family: "Montserrat";
   background-color: #e8a62b;
+  margin-right: 5%;
+  margin-left: 5%;
 }
 
 .buttonData {
@@ -59,4 +61,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.centerItem {
+  text-align: center;
+}
+
+.dataParagraph {
+  font-weight: bold;
+  font-size: 14pt;
 }

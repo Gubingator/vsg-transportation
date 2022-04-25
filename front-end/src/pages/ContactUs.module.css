@@ -29,3 +29,13 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.instructions {
+  background-color: black;
+  min-width: 100%;
+  color: #e8a62b;
+  font-family: "Abel";
+  margin: 0px;
+  min-height: 500px;
+  font-size: 35pt;
+}

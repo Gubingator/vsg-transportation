@@ -67,7 +67,7 @@ def create_groupme_link():
     }
     response = requests.post(url=config.gm_api_groups_url, params=gm_content)
     response_dict = response.json()
-    joingroup_link = response_dict.get('response', {}).get('share_url')
+    joingroup_link = response_dict['response']['share_url']
     return joingroup_link
 
 

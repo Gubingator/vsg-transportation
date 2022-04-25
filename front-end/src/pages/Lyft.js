@@ -26,7 +26,7 @@ function Lyft(props) {
 
   return (
     <div>
-      <Picture circleText="LYFT" />
+      <Picture circleText="LYFT" blur="blur(4px)" />
 
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>

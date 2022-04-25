@@ -21,9 +21,30 @@ import "bootstrap/dist/css/bootstrap.min.css";
 function ContactUs(props) {
   return (
     <div>
-      <Picture circleText="CONTACT US" />
-      <Container fluid className={classes.title}>
-        <h1>Sarah Zhang, Katie Cella, Ethan Piper, Bing Gu</h1>
+      <Picture circleText="CONTACT US" blur="blur(4px)" />
+      <Container fluid className={classes.instructions}>
+        <Row>
+          <p> QUESTIONS? </p>
+        </Row>
+        <Row>
+          <p
+            style={{
+              color: "white",
+              fontFamily: "Montserrat",
+              fontSize: "17pt",
+            }}
+          >
+            Please contact the{" "}
+            <a href={"https://studentorg.vanderbilt.edu/vsg/contact/"}>
+              Vanderbilt Student Government
+            </a>{" "}
+            with questions about this web application.
+            <br />
+            <br />
+            <br />
+            Created by: Sarah Zhang, Katie Cella, Ethan Piper, and Bing Gu.
+          </p>
+        </Row>
       </Container>
     </div>
   );

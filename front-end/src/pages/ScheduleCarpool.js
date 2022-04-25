@@ -38,7 +38,13 @@ function ScheduleCarpool(props) {
 
   const [ID, setID] = useState(-1);
 
-  const handleClose = () => setShow(false);
+  const [ScheduleButtonDisabled, setScheduleButtonDisabled] = useState(false);
+  const [VerifiedButtonDisabled, setVerifiedButtonDisabled] = useState(false);
+
+  const handleClose = () => {
+    setShow(false);
+    setVerifiedButtonDisabled(false);
+  };
 
   function setMinDate() {
     const current = new window.Date();
@@ -60,7 +66,9 @@ function ScheduleCarpool(props) {
   }, []);
 
   async function verifyClicked() {
+    setVerifiedButtonDisabled(true);
     SendCode(Email, Code, First, ID).then(function (response) {
+      setVerifiedButtonDisabled(false);
       if (response) {
         setVerified(true);
         setWrong(false);
@@ -76,6 +84,7 @@ function ScheduleCarpool(props) {
   async function HandleEmailOnClick(e) {
     let form = document.getElementById("formId");
     let FormValid = false;
+    setScheduleButtonDisabled(true);
     // this allows us to do the form validation and not reload the page.
     if (form.checkValidity() === true) {
       e.preventDefault();
@@ -113,8 +122,11 @@ function ScheduleCarpool(props) {
           setID(response);
           setWrong(false);
           setShow(true);
+          setScheduleButtonDisabled(false);
         } else {
-          setShowError(true);
+          //setShowError(true);
+          setScheduleButtonDisabled(false);
+          // do something else;
         }
       });
     }
@@ -124,7 +136,7 @@ function ScheduleCarpool(props) {
 
   return (
     <div>
-      <Picture circleText="SCHEDULE A CARPOOL" />
+      <Picture circleText="SCHEDULE A CARPOOL" blur="blur(4px)" />
       <Container className={classes.instructions}>
         <Row>
           <h1> INSTRUCTIONS </h1>
@@ -134,7 +146,20 @@ function ScheduleCarpool(props) {
           <p style={{ color: "white", fontFamily: "Montserrat" }}>
             This carpool feature allows students to find others traveling to the
             same place at the same time in order to cut transportation cost.
+            This is the schedule carpool page.
             <br />
+            <br />
+            <b>What you should do:</b>
+            <br />
+            1. Check if there is an existing carpool that matched your needs on
+            the join carpool page.
+            <br />
+            2. If there is, join the carpool! You will receive a link to a
+            GroupMe in order to communicate with others in your group.
+            <br />
+            3. If there is not a carpool that matches your needs, come back to
+            this page and schedule your own! You will also receive a GroupMe
+            link that others will join from the join page.
             <br />
           </p>
         </Row>
@@ -235,6 +260,7 @@ function ScheduleCarpool(props) {
             type="submit"
             onClick={HandleEmailOnClick}
             className={classes.button}
+            disabled={ScheduleButtonDisabled}
           >
             SCHEDULE CARPOOL
           </Button>
@@ -289,6 +315,7 @@ function ScheduleCarpool(props) {
             <Button
               variant="primary"
               onClick={verifyClicked}
+              disabled={VerifiedButtonDisabled}
               style={{ backgroundColor: "green" }}
             >
               Verify

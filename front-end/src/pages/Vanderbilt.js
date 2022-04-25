@@ -26,7 +26,7 @@ function Vanderbilt(props) {
 
   return (
     <div>
-      <Picture circleText="VANDERBILT TRANSPORTATION" />
+      <Picture circleText="VANDERBILT TRANSPORTATION" blur="blur(4px)" />
 
       <Container className={classes.page} fluid>
         <Row className={classes.cardRow}>

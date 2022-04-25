@@ -12,13 +12,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function Picture(props) {
-  function Circle(props2) {
-    return (
-      <div className={classes.centered}>
-        <div className={classes.circle}>{props2.text}</div>
-      </div>
-    );
-  }
+  const blur = props.blur;
 
   return (
     <div>
@@ -26,7 +20,12 @@ function Picture(props) {
         <Figure.Image
           src="https://res.cloudinary.com/hud9ala09/image/upload/v1457044154/zkv3yncyffd3p7aucyb8.png"
           className="img-fluid"
-          style={{ margin: "0px", width: "100%" }}
+          style={{
+            margin: "0px",
+            width: "100%",
+            filter: blur,
+            WebkitFilter: blur,
+          }}
           alt="Responsive image"
         />
         {props.circleText !== "" ? (

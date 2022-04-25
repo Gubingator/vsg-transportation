@@ -13,6 +13,7 @@ import pytz
 VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
+MAX_CARPOOL_SEATS = 4
 
 print("We started the app")
 
@@ -96,7 +97,7 @@ def send_carpool_email(carpool_id, email_address):
         cursor.execute("SELECT groupme_link "
                     "FROM carpools "
                     "WHERE id = %s",
-                       list(str(carpool_id)))
+                       list([str(carpool_id)]))
         gm_link = cursor.fetchone()[0]
         print("gm_link", gm_link)
 
@@ -258,6 +259,7 @@ class AddExampleData(Resource):
 class GetAllUpdatedDatabaseCarpools(Resource):
     def get(self):
         rows = None
+
         with conn.cursor(buffered=True, dictionary=True) as cursor:
 
             # Delete carpools from the database that have already occurred
@@ -388,7 +390,7 @@ class DeleteCarpool(Resource):
     def delete(self, carpool_id):
         with conn.cursor(buffered=True) as cursor:
             cursor.execute("DELETE FROM carpools WHERE id = %s",
-                        list(carpool_id))
+                        list([str(carpool_id)]))
             conn.commit()
             cursor.close()
 
@@ -428,11 +430,26 @@ class VerifyCodeAndSendGroupLink(Resource):
                         "ORDER BY created_at DESC;",
                            (carpool_id, email))
             rows = cursor.fetchall()
+
+            cursor.execute("DELETE FROM passengers "
+                        "WHERE NOW() > DATE_ADD(created_at, INTERVAL 1 HOUR);")
+
             conn.commit()
             print(rows)
 
             # Check if the inputted code matches the code in the database
             if rows[0]['code'] == inst['code']:
+                
+                cursor.execute("SELECT filled_seats "
+                            "FROM carpools " 
+                            "WHERE id = %s ", 
+                            list([str(carpool_id)]))
+                
+                rows = cursor.fetchall()
+
+                if rows[0]['filled_seats'] >= MAX_CARPOOL_SEATS:
+                    return {'message':'Carpool was just filled', 'confirm': -1}
+
                 # Update the passenger as verified in the database
                 cursor.execute("UPDATE passengers "
                             "SET verified = TRUE "
@@ -444,7 +461,7 @@ class VerifyCodeAndSendGroupLink(Resource):
                 cursor.execute("UPDATE carpools "
                             "SET filled_seats = filled_seats + 1 "
                             "WHERE id = %s;",
-                               list(str(carpool_id)))
+                               list([str(carpool_id)]))
 
                 conn.commit()
                 cursor.close()

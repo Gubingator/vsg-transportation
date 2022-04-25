@@ -1,3 +1,12 @@
 .page {
-	min-height: 1000px;
+  min-height: 1000px;
+}
+
+.instructions {
+  background-color: black;
+  min-width: 100%;
+  color: #e8a62b;
+  font-family: "Abel";
+  padding-left: 12px;
+  padding-right: 12px;
 }

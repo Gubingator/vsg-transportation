@@ -173,13 +173,13 @@ test("Navigation works", () => {
     const spy = jest.spyOn(redux, "useSelector");
     spy.mockReturnValue([{
       id: 1,
-      students: ["Student1", "Student2"],
       departure: "Hank Circle",
       destination: "Chick-fil-a",
       year: "2022",
       month: "04",
       day: "03",
       time: "4:00:00",
+      filled_seats: 1,
     }]);
   
     const store = mockStore();
@@ -195,5 +195,5 @@ test("Navigation works", () => {
   fireEvent.click(getByText("CARPOOL"));
   fireEvent.click(getByText("JOIN A CARPOOL"));
 
-  getByText("Leaving from: Hank Circle");
+  getByText("Hank Circle");
 });
