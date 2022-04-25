@@ -270,7 +270,10 @@ class GetAllUpdatedDatabaseCarpools(Resource):
             # Only display verified carpools
             cursor.execute("SELECT * FROM carpools "
                         "WHERE filled_seats != 0 "
-                        "ORDER BY date_time;")
+                        "AND filled_seats < %s "
+                        "ORDER BY date_time;", 
+                        list([str(MAX_CARPOOL_SEATS)]))
+                        
             rows = cursor.fetchall()
 
             cursor.close()
