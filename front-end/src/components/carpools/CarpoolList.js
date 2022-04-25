@@ -149,7 +149,7 @@ function CarpoolList(props) {
 
       <form>
         <label>
-          Search By: 
+          Search By:   
           <select onChange={(event) => {
                         setOption(event.target.value);
                       }}>

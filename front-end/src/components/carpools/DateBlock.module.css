@@ -1,0 +1,19 @@
+.cardData {
+  margin-top: 7px;
+  margin-bottom: 5px;
+  padding-top: 5px;
+  font-family: "Montserrat";
+  background-color: #e8a62b;
+	min-width: 350px;
+	max-width: 26%;
+	text-align: center;
+}
+
+.dateH4 {
+	font-weight: bold;
+}
+
+.rowData {
+	align-content: center;
+	padding-left: 3%;
+}
