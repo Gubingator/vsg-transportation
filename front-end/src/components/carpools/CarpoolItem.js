@@ -7,11 +7,13 @@
 import { Col, Row, Card, Button, Modal, Form } from "react-bootstrap";
 import classes from "./CarpoolItem.module.css";
 import { useState } from "react";
+import { SendEmail, SendCode } from "../../services/verify";
 
 function CarpoolItem(props) {
   const [First, setFirst] = useState("");
   const [Last, setLast] = useState("");
   const [Email, setEmail] = useState("");
+  const [ID, setID] = useState("");
 
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -28,6 +30,17 @@ function CarpoolItem(props) {
     setShow(true);
   }
 
+  function formatTime(){
+    let minutes = props.carpool_ref["time"].substring(3, 5);
+    let hour = parseInt(props.carpool_ref["time"].substring(0,2));
+    let postFix = "AM";
+    if (hour > 12){
+      hour = hour - 12;
+      postFix = "PM";
+    }
+    return hour.toString() + ":" + minutes + " " + postFix;
+  }
+
   function inputValid(e) {
     if (FirstNameVerified && EmailVerified) {
       handleClose();
@@ -39,58 +52,42 @@ function CarpoolItem(props) {
     }
   }
 
+
   async function verifyClicked() {
-    if (Code === "000000") {
-      setVerified(true);
-      handleCloseConfirm();
-    } else {
-      setVerified(false);
-      setWrong(true);
-      //setShow(false);
-    }
-    // sendCode(First, Email, Code).then(function (response) {
-    //   if (response) {
-    //     setVerified(true);
-    //     setShow(false);
-    //   } else {
-    //     setVerified(false);
-    //     setShow(false);
-    //   }
-    // });
+    // if (Code === "000000") {
+    //   setVerified(true);
+    //   handleCloseConfirm();
+    // } else {
+    //   setVerified(false);
+    //   setWrong(true);
+    //   //setShow(false);
+    // }
+    SendCode(Email, Code, First, props.carpool_ref["id"]).then(function (
+      response
+    ) {
+      if (response) {
+        setVerified(true);
+        handleCloseConfirm();
+      } else {
+        setVerified(false);
+        setWrong(true);
+      }
+    });
   }
 
   function HandleEmailOnClick(e) {
     e.preventDefault();
-    console.log(First);
-    console.log(Last);
-    console.log(Email);
-    console.log(props.carpool_ref["time"]);
-    const student = First + " " + Last;
-
-    // const new_carpool = {
-    //   id: 1,
-    //   students: [student],
-    //   departure: Departure,
-    //   destination: Destination,
-    //   year: date_array[0],
-    //   month: date_array[1],
-    //   day: date_array[2],
-    //   time: Time + ":00",
-    // };
-
-    // console.log(new_carpool);
-
-    // NewCarpool(dispatch, new_carpool);
-    setShowConfirm(true);
-
-    // console.log(new_carpool);
+    // response will equal -1 if the email was not valid (idk if we need this though)
+    SendEmail(Email, props.carpool_ref["id"], First).then(function (response) {
+      setShowConfirm(true);
+    });
   }
 
   return (
     <div>
       <Card className={classes.cardData}>
         <Row>
-          <Col style={{ textAlign: "center" }}>
+          <Col sm style={{ textAlign: "center" }}>
             OPEN SEATS:
             <br />
             <p
@@ -100,14 +97,26 @@ function CarpoolItem(props) {
                 fontSize: "17pt",
               }}
             >
-              {4 - props.carpool_ref["students"].length}
+              {4 - props.carpool_ref["filled_seats"]}
             </p>
           </Col>
-          <Col>Leaving from: {props.carpool_ref["departure"]}</Col>
-          <Col>Leaving time: {props.carpool_ref["time"].substring(0, 5)}</Col>
-          <Col>
+          <Col sm className={classes.centerItem}>
+            Leaving from:
+            <p className={classes.dataParagraph}>
+              {props.carpool_ref["departure"]}
+            </p>
+          </Col>
+          <Col sm className={classes.centerItem}>
+            Leaving time:
+            <p className={classes.dataParagraph}>
+              {formatTime()}
+            </p>
+          </Col>
+          <Col sm className={classes.centerItem}>
             Destination:
-            {props.carpool_ref["destination"]}
+            <p className={classes.dataParagraph}>
+              {props.carpool_ref["destination"]}{" "}
+            </p>
             {/* Students:
           <ul className={classes.list}>
             {props.carpool_ref["students"].map((student) => {
@@ -115,7 +124,7 @@ function CarpoolItem(props) {
             })}
           </ul> */}
           </Col>
-          <Col style={{ paddingTop: "7px" }}>
+          <Col sm style={{ paddingTop: "7px" }} className={classes.centerItem}>
             <Button onClick={handleShow} className={classes.buttonData}>
               JOIN
             </Button>
@@ -240,7 +249,10 @@ function CarpoolItem(props) {
                   required
                 />
                 {Wrong ? (
-                  <Form.Text className="text-muted">INCORRECT CODE!</Form.Text>
+                  <Form.Text className="text-muted">
+                    INCORRECT CODE! <br />
+                    Reload the page and resubmit in order to resend.
+                  </Form.Text>
                 ) : (
                   <div></div>
                 )}
@@ -251,9 +263,9 @@ function CarpoolItem(props) {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseConfirm}>
+          {/* <Button variant="secondary" onClick={handleCloseConfirm}>
             Resend
-          </Button>
+          </Button> */}
           <Button
             variant="primary"
             onClick={verifyClicked}

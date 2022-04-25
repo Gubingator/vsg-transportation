@@ -16,8 +16,9 @@ import {
 } from "../store/carpoolsSlice";
 import * as axios from "axios";
 
-const FlaskURL2 = 'http://127.0.0.1:5000/'
-const FlaskURL = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
+const FlaskURL3 = 'http://127.0.0.1:5000/'
+const FlaskURL2 = `https://msdocs-python-webapp-quickstart-987.azurewebsites.net/`;
+const FlaskURL = 'https://carpool-flask-api-vsg.azurewebsites.net/';
 
 var config = {
   headers: {
@@ -86,6 +87,7 @@ export const GetCarpools = async (dispatch) => {
  *
  * @param dispatch  The dispach React Redux object
  * @ param carpool  The new Carpool object to be added
+ * @ return the new ID or -1 if error. 
  */
 export const NewCarpool = async (dispatch, carpool, email) => {
   try {
@@ -100,7 +102,7 @@ export const NewCarpool = async (dispatch, carpool, email) => {
         // TODO: 
         const id2 = response["data"]["id"];
         if (id2 < 0){
-          return false;
+          return id2;
         }
         let test1 = {
           ...carpool,
@@ -109,17 +111,17 @@ export const NewCarpool = async (dispatch, carpool, email) => {
         const new_obj = { id: id2 };
         const new_data = Object.assign(test1, new_obj);
         dispatch(newCarpool(new_data));
-        return true;
+        return id2;
       })
       .catch(function (error) {
         console.log(error);
-        return false;
+        return -1;
       });
 
       return result;
   } catch {
     console.log("New Carpool Error");
-    return false;
+    return -1;
   }
 };
 

@@ -15,8 +15,10 @@ import { Form, Button, Container, Row, Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { NewCarpool } from "../services/carpools";
 import { SendCode } from "../services/verify";
+import { useNavigate } from "react-router-dom";
 
 function ScheduleCarpool(props) {
+  let navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [First, setFirst] = useState("");
@@ -46,7 +48,15 @@ function ScheduleCarpool(props) {
   const [Code, setCode] = useState("");
   const [Verified, setVerified] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const [ID, setID] = useState(-1);
+
+  const [ScheduleButtonDisabled, setScheduleButtonDisabled] = useState(false);
+  const [VerifiedButtonDisabled, setVerifiedButtonDisabled] = useState(false);
+
+  const handleClose = () => {
+    setShow(false)
+    setVerifiedButtonDisabled(false);
+  };
 
   function setMinDate() {
     const current = new window.Date();
@@ -59,7 +69,10 @@ function ScheduleCarpool(props) {
     if (day < 10) strDay = "0" + String(day);
 
     const date = `${current.getFullYear()}-${strMonth}-${strDay}`;
-    console.log(date);
+    // console.log(date);
+
+    //console.log(Date);
+
     document.getElementById("datePickerId").setAttribute("min", date);
   }
 
@@ -67,27 +80,30 @@ function ScheduleCarpool(props) {
     setMinDate();
   }, []);
 
-  //function resendClicked() {
-  //sendEmail();
-  //}
+  // function resendClicked() {
+  //   sendEmail();
+  // }
 
   async function verifyClicked() {
-    if (Code === "000000") {
-      setVerified(true);
-      setShow(false);
-    } else {
-      setVerified(false);
-      setShow(false);
-    }
-    // sendCode(Email, Code, First).then(function (response) {
-    //   if (response) {
-    //     setVerified(true);
-    //     setShow(false);
-    //   } else {
-    //     setVerified(false);
-    //     setShow(false);
-    //   }
-    // });
+    setVerifiedButtonDisabled(true);
+    // if (Code === "000000") {
+    //   setVerified(true);
+    //   setShow(false);
+    // } else {
+    //   setVerified(false);
+    //   setShow(false);
+    // }
+    SendCode(Email, Code, First, ID).then(function (response) {
+      setVerifiedButtonDisabled(false);
+      if (response) {
+        setVerified(true);
+        setShow(false);
+        navigate("/join-carpool", { replace: true });
+      } else {
+        setVerified(false);
+        setShow(false);
+      }
+    });
   }
 
   function HandleScheduleOnClick() {
@@ -98,7 +114,7 @@ function ScheduleCarpool(props) {
     }
   }
   function HandleVerify() {
-    if (props.code === this.input.value) {
+    if (props.code == this.input.value) {
       setVerified(true);
       this.setShow(false);
     } else {
@@ -107,21 +123,15 @@ function ScheduleCarpool(props) {
     }
   }
 
-  function inputValid(e) {
-    if (
-      FirstNameVerified &&
-      EmailVerified &&
-      DateVerified &&
-      TimeVerified &&
-      DepartureVerified &&
-      DestinationVerified
-    ) {
-      HandleEmailOnClick(e);
+  async function HandleEmailOnClick(e) {
+    let form = document.getElementById("formId");
+    let FormValid = false;
+    setScheduleButtonDisabled(true);
+    // this allows us to do the form validation and not reload the page.
+    if (form.checkValidity() === true) {
+      e.preventDefault();
+      FormValid = true;
     }
-  }
-
-  function HandleEmailOnClick(e) {
-    e.preventDefault();
     console.log(First);
     console.log(Last);
     console.log(Email);
@@ -134,19 +144,33 @@ function ScheduleCarpool(props) {
 
     const new_carpool = {
       id: 1,
-      students: [student],
       departure: Departure,
       destination: Destination,
       year: date_array[0],
       month: date_array[1],
       day: date_array[2],
       time: Time + ":00",
+      filled_seats: 0,
     };
 
     console.log(new_carpool);
 
-    NewCarpool(dispatch, new_carpool);
-    setShow(true);
+    console.log(FormValid)
+    if (FormValid) { // checks to make sure we have a good form. 
+      // response is an integer. If it is less than 0, there was an error.
+      NewCarpool(dispatch, new_carpool, Email).then(function (response) {
+        console.log("New Carpool");
+        console.log(response);
+        if (response > 0) {
+          setID(response);
+          setShow(true);
+          setScheduleButtonDisabled(false);
+        } else {
+          setScheduleButtonDisabled(false);
+          // do something else;
+        }
+      });
+    }
 
     console.log(new_carpool);
   }
@@ -170,17 +194,17 @@ function ScheduleCarpool(props) {
       </Container>
 
       <div>
-        <form className={classes.information}>
-          <label>First Name:</label>
+        <form className={classes.information} id="formId">
+          <label htmlFor="first">First Name:</label>
           <input
+            id="first"
             className={classes.input}
             type="text"
             required
-            maxLength="40"
+            maxLength="20"
             pattern="([a-zA-Z]+)"
             onChange={(event) => {
               setFirst(event.target.value);
-              setFirstNameVerified(true);
             }}
           />
 
@@ -192,8 +216,9 @@ function ScheduleCarpool(props) {
               setLast(event.target.value);
             }}
           />
-          <label>Vanderbilt Email:</label>
+          <label htmlFor="vandy-email">Vanderbilt Email:</label>
           <input
+            id="vandy-email"
             className={classes.input}
             type="email"
             required
@@ -201,7 +226,6 @@ function ScheduleCarpool(props) {
             pattern=".+vanderbilt.edu"
             onChange={(event) => {
               setEmail(event.target.value);
-              setEmailVerfied(true);
             }}
           />
 
@@ -213,7 +237,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDate(event.target.value);
-              setDateVerified(true);
             }}
           />
 
@@ -224,7 +247,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setTime(event.target.value);
-              setTimeVerified(true);
             }}
           />
 
@@ -234,7 +256,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDeparture(event.target.value);
-              setDepartureVerified(true);
             }}
           />
 
@@ -253,7 +274,6 @@ function ScheduleCarpool(props) {
             required
             onChange={(event) => {
               setDestination(event.target.value);
-              setDestinationVerified(true);
             }}
           />
           <datalist id="locations">
@@ -264,9 +284,21 @@ function ScheduleCarpool(props) {
             <option value="Kroger"></option>
             <option value="Target"></option>
           </datalist>
-          <Button type="submit" onClick={inputValid} className={classes.button}>
+          <Button
+            type="submit"
+            onClick={HandleEmailOnClick}
+            className={classes.button}
+            disabled={ScheduleButtonDisabled}
+          >
             SCHEDULE CARPOOL
           </Button>
+          {/* <button
+            type="submit"
+            onClick={HandleOnClick}
+            className={classes.button}
+          >
+            Add Carpool Request
+          </button> */}
         </form>
 
         <Modal
@@ -304,12 +336,13 @@ function ScheduleCarpool(props) {
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            {/* <Button variant="secondary" onClick={handleClose}>
               Resend
-            </Button>
+            </Button> */}
             <Button
               variant="primary"
               onClick={verifyClicked}
+              disabled={VerifiedButtonDisabled}
               style={{ backgroundColor: "green" }}
             >
               Verify
@@ -317,7 +350,7 @@ function ScheduleCarpool(props) {
           </Modal.Footer>
         </Modal>
       </div>
-      {Verified ? <h1>yes</h1> : <h1>no</h1>}
+      {/* {Verified ? <h1>yes</h1> : <h1>no</h1>} */}
     </div>
   );
 }

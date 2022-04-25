@@ -1,3 +1,8 @@
+# Group Number: 5
+# Members: Sarah Zhang, Katie Cella, Bing Gu, Ethan Piper
+# sarah.s.zhang@vanderbilt.edu, katharine.a.cella@vanderbilt.edu, bing.q.gu@vanderbilt.edu, ethan.b.piper@vanderbilt.edu
+# Homework 03
+
 # Sends all the different confirmation emails for the carpool feature.
 #   1. Emails the user a confirmation code, and verifies that the inputted code matches.
 #   2. Creates a new GroupMe group chat, and sends an email to recipient with the link.
@@ -41,7 +46,7 @@ def is_valid_email_address(email):
 """
 def set_verify_email_content(verification_code, recipient):
     msg = EmailMessage()
-    with open("back-end\\resources\\verify-email-template.txt") as emailfile:
+    with open("resources\\verify-email-template.txt") as emailfile:  # TODO: May need to change path
         data = emailfile.read()
         data = data.replace("verification_code", verification_code)
         msg.set_content(data)
@@ -74,7 +79,7 @@ def create_groupme_link():
 """
 def set_gm_email_content(recipient, gm_link):
     msg = EmailMessage()
-    with open("back-end\\resources\\gm-email-template.txt") as emailfile:
+    with open("resources\\gm-email-template.txt") as emailfile: # TODO: Maybe add back-end\\ back in
         data = emailfile.read()
         data = data.replace("gm_link", gm_link)
         msg.set_content(data)
