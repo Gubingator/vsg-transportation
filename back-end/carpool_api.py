@@ -6,7 +6,7 @@ from mysql.connector import errorcode
 from flask_restful import Resource, Api
 from flask_cors import CORS
 import json
-import config, conf_email
+import config, conf_email, groupme_bot
 import re
 import pytz
 
@@ -14,7 +14,7 @@ VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
 
-print("We started the app")
+print("Started the app")
 
 student_delimiter = ", "
 
@@ -25,12 +25,16 @@ student_delimiter = ", "
 # @param carpool the set of carpools from the database
 # @return The list of carpools in the correct format
 def parse_carpool_set_sql(carpool):
-    print(carpool)
     to_return = []
-    for carpool_1 in carpool:  # Parse each carpool separately and add them to a list
-
-        element = parse_carpool_sql(carpool_1['id'], str(carpool_1['departure']), str(carpool_1['destination']),
-                                    carpool_1['filled_seats'], str(carpool_1['date_time']))
+    for carpool_1 in carpool:
+        # Parse each carpool separately and add it to a list
+        element = parse_carpool_sql(
+            carpool_1['id'],
+            str(carpool_1['departure']),
+            str(carpool_1['destination']),
+            carpool_1['filled_seats'],
+            str(carpool_1['date_time'])
+        )
         to_return.append(element)
     return to_return
 
@@ -54,10 +58,18 @@ def parse_carpool_sql(carpool_id, departure, destination, filled_seats, date_tim
 
     the_date_time = date_time.split(" ")  # Split the date string
     the_date = the_date_time[0].split("-")
+    
     # Create the JSON element to send to the web-app
-    element = {'id': carpool_id, 'departure': departure,
-               'destination': destination, 'year': the_date[0], 'month': the_date[1],
-               'day': the_date[2], 'time': the_date_time[1], 'filled_seats': filled_seats}
+    element = {
+        'id': carpool_id,
+        'departure': departure,
+        'destination': destination,
+        'year': the_date[0],
+        'month': the_date[1],
+        'day': the_date[2],
+        'time': the_date_time[1],
+        'filled_seats': filled_seats
+    }
     return element
 
 
@@ -75,14 +87,14 @@ def send_confirmation_code_email(carpool_id, email_address):
         cursor.execute("INSERT INTO passengers "
                     "(carpool_id, email, code) "
                     "VALUES (%s, %s, %s);",
-                       (carpool_id, email_address, verification_code))
+                    (carpool_id, email_address, verification_code))
     
         conn.commit()
         cursor.close()
 
     # Send email with the confirmation code
     msg = conf_email.set_verify_email_content(verification_code, email_address)
-    conf_email.send_email(msg) # TODO Uncomment this line
+    conf_email.send_email(msg)
 
 
 # Sends an email with the GroupMe carpool link. If the carpool does not yet have a
@@ -94,24 +106,35 @@ def send_carpool_email(carpool_id, email_address):
     with conn.cursor(buffered=True) as cursor:
         # Join Carpool: If the carpool already has a GroupMe chat, then get the link
         cursor.execute("SELECT groupme_link "
-                    "FROM carpools "
-                    "WHERE id = %s",
+                       "FROM groupme_info "
+                       "WHERE carpool_id = %s",
                        list([str(carpool_id)]))
         gm_link = cursor.fetchone()[0]
-        print("gm_link", gm_link)
-
-        # Schedule Carpool: If the carpool does not have a GroupMe chat,
-        #   then create a new chat and add the link to the database
-        if gm_link is None:
-            gm_link = conf_email.create_groupme_link()
-            cursor.execute("UPDATE carpools "
-                        "SET groupme_link = %s "
-                        "WHERE id = %s;",
-                           (gm_link, carpool_id))
         
         conn.commit()
         cursor.close()
-    
+
+    # Schedule Carpool: If the carpool does not have a GroupMe chat,
+    #   then create a new chat and add the info to the database
+    if gm_link is None:
+        group_id, gm_link = conf_email.create_groupme_chat()
+        bot_id = groupme_bot.create_chat_bot(group_id)
+        
+        with conn.cursor(buffered=True) as cursor:
+            cursor.execute("INSERT INTO groupme_info "
+                           "VALUES (%s, %s, %s, %s); ",
+                           (group_id, carpool_id, bot_id, gm_link))
+
+            # Get carpool logistical info to send a message to the GroupMe chat
+            cursor.execute("SELECT * FROM carpools WHERE carpool_id = %s;",
+                           list([str(carpool_id)]))
+            rows = cursor.fetchall()
+            carpool_info = parse_carpool_set_sql(rows)
+            groupme_bot.send_first_chat_message(carpool_info, bot_id)
+
+            conn.commit()
+            cursor.close()
+
     # Send the email
     email_msg = conf_email.set_gm_email_content(email_address, gm_link)
     conf_email.send_email(email_msg)
@@ -129,7 +152,7 @@ def verify_date_time(time, day, month, year):
 
     try:
         d1 = datetime(int(year), int(month), int(day), int(the_time[0]), int(the_time[1])).astimezone(tz_IN)
-    except ValueError:
+    except ValueError: 
         return INCORRECT_FORMAT
     except:
         return INCORRECT_FORMAT
@@ -141,11 +164,33 @@ def verify_date_time(time, day, month, year):
     return VALID
 
 
+# Verifies that the departure location is valid
 def verify_departure(departure):
     return VALID
 
 
+# Verifies that the destination location is valid
 def verify_destination(destination):
+    return VALID
+
+
+# Verifies that the carpool input info is valid
+def verify_carpool_input_info(time, day, month, year, departure, destination):
+    valid_data = verify_date_time(time, day, month, year)
+
+    if valid_data != VALID:
+        return valid_data
+
+    valid_data = verify_departure(departure)
+
+    if valid_data != VALID:
+        return valid_data
+
+    valid_data = verify_destination(destination)
+
+    if valid_data != VALID:
+        return valid_data
+
     return VALID
 
 
@@ -179,8 +224,8 @@ class ResetDatabase(Resource):
             # with open('setup_db.sql', 'r') as sql_file:
             #     cursor.execute(sql_file.read(), multi=True)
 
+            cursor.execute("DROP TABLE IF EXISTS groupme_info;")
             cursor.execute("DROP TABLE IF EXISTS passengers; ")
-
             cursor.execute("DROP TABLE IF EXISTS carpools;")
 
             conn.commit()
@@ -190,8 +235,7 @@ class ResetDatabase(Resource):
                            "departure VARCHAR(255), "
                            "destination VARCHAR(255), "
                            "date_time DATETIME, "
-                           "filled_seats INT DEFAULT 0, "
-                           "groupme_link VARCHAR(255) DEFAULT NULL);")
+                           "filled_seats INT DEFAULT 0);")
 
             cursor.execute("CREATE TABLE passengers "
                            "(passenger_id INTEGER PRIMARY KEY AUTO_INCREMENT, "
@@ -202,6 +246,17 @@ class ResetDatabase(Resource):
                            "created_at DATETIME DEFAULT NOW(), "
                            "verified INTEGER DEFAULT FALSE, "
                            "CONSTRAINT carpool_fk "
+                           "FOREIGN KEY (carpool_id) "
+                           "REFERENCES carpools (id) "
+                           "ON UPDATE CASCADE "
+                           "ON DELETE CASCADE);")
+
+            cursor.execute("CREATE TABLE groupme_info "
+                           "(group_id INTEGER PRIMARY KEY, "
+                           "carpool_id INTEGER, "
+                           "bot_id INTEGER DEFAULT NULL, "
+                           "groupme_link VARCHAR(255) DEFAULT NULL, "
+                           "CONSTRAINT gm_fk "
                            "FOREIGN KEY (carpool_id) "
                            "REFERENCES carpools (id) "
                            "ON UPDATE CASCADE "
@@ -244,6 +299,8 @@ class AddExampleData(Resource):
                            "(carpool_id, email, code, created_at) "
                            "VALUES (%s, %s, %s, NOW()); ",
                            ("1", "example@vanderbilt.edu", "123456"))
+            
+            # TODO: Insert data into groupme_info table
 
             conn.commit()
             cursor.close()
@@ -258,18 +315,17 @@ class AddExampleData(Resource):
 class GetAllUpdatedDatabaseCarpools(Resource):
     def get(self):
         rows = None
-
         with conn.cursor(buffered=True, dictionary=True) as cursor:
-
             # Delete carpools from the database that have already occurred
             cursor.execute("DELETE FROM carpools "
-                "WHERE date_time < NOW();")
+                           "WHERE date_time < NOW();")
 
+            # TODO: Call groupme_bot.send_reminder_message() one day before the carpool
 
             # Only display verified carpools
             cursor.execute("SELECT * FROM carpools "
-                        "WHERE filled_seats != 0 "
-                        "ORDER BY date_time;")
+                           "WHERE filled_seats != 0 "
+                           "ORDER BY date_time;")
             rows = cursor.fetchall()
 
             cursor.close()
@@ -298,50 +354,47 @@ class GetAllUpdatedDatabaseCarpools(Resource):
 # @return The new to give the carpool object that the database assigned to it.
 class AddCarpoolToDatabase(Resource):
     def post(self):
-        # Get the Data from the post request
+        # Get the data from the post request
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
 
         # Check if input data is valid
-        valid_data = verify_date_time(inst['time'], inst['day'], inst['month'], inst['year'])
-        print("carpool: " + str(valid_data))
-
-        if valid_data != VALID:  # VALID = 1 and is declared at the top of the file
-            return {'id': valid_data}
-
-        valid_data = verify_departure(inst['departure'])
-
+        valid_data = verify_carpool_input_info(
+            inst['time'],
+            inst['day'],
+            inst['month'],
+            inst['year'],
+            inst['departure'],
+            inst['desination']
+        )
+        
         if valid_data != VALID:
-            return {'id': valid_data}
-
-        valid_data = verify_destination(inst['destination'])
-
-        if valid_data != VALID:
-            return {'id': valid_data}
+            return { 'id' : valid_data }
 
         if not conf_email.is_valid_email_address(inst['email']):
-            return {'id': -1}
+            return { 'id' : -1 }
 
         rows = None
         # Insert the data into the database
         with conn.cursor(buffered=True, dictionary=True) as cursor:
             # Format the date so that we can add it in the database
             the_time = inst['time'].split(":")
-            the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day'] + " " + the_time[0] + ":" + the_time[1]
+            the_date = inst['year'] + "-" + inst['month'] + "-" + inst['day']
+            date_time = the_date + " " + the_time[0] + ":" + the_time[1]
             
             cursor.execute(
                 "INSERT INTO carpools "
                 "(departure, destination, date_time) "
                 "VALUES (%s, %s, STR_TO_DATE(%s, '%Y-%m-%d %H:%i'));",
-                (inst['departure'], inst['destination'], the_date))
+                (inst['departure'], inst['destination'], date_time))
 
             # Get the last inserted id in the database.
             # Since the id has the autoincrement property in the table, we need to make sure
             # the ids on the database and web-app side are consistent
             cursor.execute("SELECT LAST_INSERT_ID();")
             rows = cursor.fetchall()
-            print(rows)
+
             # Commit the data
             conn.commit()
             cursor.close()
@@ -366,13 +419,10 @@ class AddCarpoolToDatabase(Resource):
 # @return The new carpool to update on the front-end
 class JoinCarpool(Resource):
     def post(self):
-        # Get the data included in the post request
-
-        print("We made it here")
+        # Get the data from the post request
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
-        print(inst)
 
         if not conf_email.is_valid_email_address(inst['email']):
             return {'confirm': -1}
@@ -389,7 +439,7 @@ class DeleteCarpool(Resource):
     def delete(self, carpool_id):
         with conn.cursor(buffered=True) as cursor:
             cursor.execute("DELETE FROM carpools WHERE id = %s",
-                        list([str(carpool_id)]))
+                           list([str(carpool_id)]))
             conn.commit()
             cursor.close()
 
@@ -413,7 +463,6 @@ class VerifyCodeAndSendGroupLink(Resource):
         data = request.get_json(silent=True)
         data = str(data).replace("\'", "\"")
         inst = json.loads(str(data))
-        print(inst)
 
         carpool_id = inst['carpool_id']
         email = inst['email']
@@ -422,29 +471,28 @@ class VerifyCodeAndSendGroupLink(Resource):
         with conn.cursor(buffered=True, dictionary=True) as cursor:
             # Grab the emailed code from the database if it was sent less than 1 hour ago
             cursor.execute("SELECT code "
-                        "FROM passengers "
-                        "WHERE carpool_id = %s "
-                        "AND email = %s "
-                        "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR) "
-                        "ORDER BY created_at DESC;",
+                           "FROM passengers "
+                           "WHERE carpool_id = %s "
+                           "AND email = %s "
+                           "AND NOW() < DATE_ADD(created_at, INTERVAL 1 HOUR) "
+                           "ORDER BY created_at DESC;",
                            (carpool_id, email))
             rows = cursor.fetchall()
             conn.commit()
-            print(rows)
 
             # Check if the inputted code matches the code in the database
             if rows[0]['code'] == inst['code']:
                 # Update the passenger as verified in the database
                 cursor.execute("UPDATE passengers "
-                            "SET verified = TRUE "
-                            "WHERE carpool_id = %s "
-                            "AND email = %s ",
+                               "SET verified = TRUE "
+                               "WHERE carpool_id = %s "
+                               "AND email = %s ",
                                (carpool_id, email))
 
                 # Update the number of filled seats in the database
                 cursor.execute("UPDATE carpools "
-                            "SET filled_seats = filled_seats + 1 "
-                            "WHERE id = %s;",
+                               "SET filled_seats = filled_seats + 1 "
+                               "WHERE id = %s;",
                                list([str(carpool_id)]))
 
                 conn.commit()
@@ -453,7 +501,8 @@ class VerifyCodeAndSendGroupLink(Resource):
                 # Send the confirmation email
                 send_carpool_email(carpool_id, email)
 
-                return {'message':'Confirmation code validated, email to join carpool sent', 'confirm': 1}, 200
+                return { 'message' : 'Confirmation code validated, email to join carpool sent',
+                         'confirm' : 1 }, 200
             else:
                 return {'message':'Invalid confirmation code', 'confirm': 0}, 401
 

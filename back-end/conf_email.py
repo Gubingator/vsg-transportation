@@ -56,19 +56,20 @@ def set_verify_email_content(verification_code, recipient):
     return msg
 
 
-"""Creates a new GroupMe group chat, and returns the link.
+"""Creates a new GroupMe group chat, and returns the group id and the link.
 
-:returns: The link to join the new GroupMe chat.
+:returns: The group id, and the link to join the new GroupMe chat.
 """
-def create_groupme_link():
+def create_groupme_chat():
     gm_content = {
         "name" : "Vandy Transit Carpool Group",
         "share" : True
     }
     response = requests.post(url=config.gm_api_groups_url, params=gm_content)
     response_dict = response.json()
+    group_id = joingroup_link = response_dict['response']['group_id']
     joingroup_link = response_dict['response']['share_url']
-    return joingroup_link
+    return group_id, joingroup_link
 
 
 """Sets the content of the GroupMe confirmation email based on the template.
