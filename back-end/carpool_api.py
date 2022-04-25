@@ -13,6 +13,7 @@ import pytz
 VALID = 1
 INCORRECT_FORMAT = -1
 OUT_OF_RANGE = -2
+MAX_CARPOOL_SEATS = 4
 
 print("Started the app")
 
@@ -324,8 +325,11 @@ class GetAllUpdatedDatabaseCarpools(Resource):
 
             # Only display verified carpools
             cursor.execute("SELECT * FROM carpools "
-                           "WHERE filled_seats != 0 "
-                           "ORDER BY date_time;")
+                        "WHERE filled_seats != 0 "
+                        "AND filled_seats < %s "
+                        "ORDER BY date_time;", 
+                        list([str(MAX_CARPOOL_SEATS)]))
+                        
             rows = cursor.fetchall()
 
             cursor.close()
@@ -478,10 +482,25 @@ class VerifyCodeAndSendGroupLink(Resource):
                            "ORDER BY created_at DESC;",
                            (carpool_id, email))
             rows = cursor.fetchall()
+
+            cursor.execute("DELETE FROM passengers "
+                        "WHERE NOW() > DATE_ADD(created_at, INTERVAL 1 HOUR);")
+
             conn.commit()
 
             # Check if the inputted code matches the code in the database
             if rows[0]['code'] == inst['code']:
+                
+                cursor.execute("SELECT filled_seats "
+                            "FROM carpools " 
+                            "WHERE id = %s ", 
+                            list([str(carpool_id)]))
+                
+                rows = cursor.fetchall()
+
+                if rows[0]['filled_seats'] >= MAX_CARPOOL_SEATS:
+                    return {'message':'Carpool was just filled', 'confirm': -1}
+
                 # Update the passenger as verified in the database
                 cursor.execute("UPDATE passengers "
                                "SET verified = TRUE "
