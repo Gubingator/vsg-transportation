@@ -124,7 +124,7 @@ function ScheduleCarpool(props) {
           setShow(true);
           setScheduleButtonDisabled(false);
         } else {
-          //setShowError(true);
+          setShowError(true);
           setScheduleButtonDisabled(false);
           // do something else;
         }
@@ -222,7 +222,9 @@ function ScheduleCarpool(props) {
             }}
           />
 
-          <label style={{textAlign: "center"}} >Departure Location <br/>(choose one or type your own):{" "}
+          <label style={{ textAlign: "center" }}>
+            Departure Location <br />
+            (choose one or type your own):{" "}
           </label>
           <input
             list="departLocations"
@@ -241,7 +243,10 @@ function ScheduleCarpool(props) {
             <option value="Other"></option>
           </datalist>
 
-          <label style={{textAlign: "center"}}> Destination <br/> (choose one or type your own): </label>
+          <label style={{ textAlign: "center" }}>
+            {" "}
+            Destination <br /> (choose one or type your own):{" "}
+          </label>
           <input
             list="locations"
             required

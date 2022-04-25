@@ -31,7 +31,7 @@ function ContactUs(props) {
             style={{
               color: "white",
               fontFamily: "Montserrat",
-              fontSize: "17pt",
+              fontSize: "16pt",
             }}
           >
             Please contact the{" "}
