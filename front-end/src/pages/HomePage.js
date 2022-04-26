@@ -23,10 +23,11 @@ function HomePage(props) {
       <Container fluid className={classes.title}>
         <h1>STUDENT TRANSPORTATION</h1>
         <p className={classes.paragraph}>
-          This website is a centralized location for the transportation options
-          available to Vanderbilt Students. Available to all students is a
-          carpool scheduler where students may schedule or join a carpool, to
-          the airport, for example, at school breaks.
+          Vandy Transit is a centralized location for the transportation options
+          available to Vanderbilt Students. It includes information about how to
+          get around Vanderbilt and Nashville. Available to all students is a
+          carpool scheduler where students may schedule a carpool or join an
+          already existant carpool.
         </p>
       </Container>
 
